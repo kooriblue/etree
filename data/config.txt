@@ -1,0 +1,138 @@
+# 网络中节点数量
+SIZE 10
+ONLINESIZE 9
+
+
+# 延迟
+DELAY 0
+MINDELAY 0
+MAXDELAY 0
+INNER_TO_ROOT_DELAY 1
+
+# 第二层节点聚合时间间隔
+AGGREGATE_TIME 3
+
+# 第二层聚合多少次后发送给根节点聚合
+AGGREGATE_COUNT 2
+
+# 根节点聚合时间间隔
+ROOT_AGGREGATE_TIME AGGREGATE_TIME*AGGREGATE_COUNT+INNER_TO_ROOT_DELAY
+
+# 模拟轮数
+CYCLES 48
+LOGTIME ROOT_AGGREGATE_TIME
+
+# 结束时间和打印时间
+simulation.endtime LOGTIME*CYCLES
+simulation.logtime LOGTIME
+
+# 丢包率 1为最大
+DROP 0
+
+# 延迟的平均数和方差
+DELAY_MEAN ONLINESIZE
+DELAY_VAR ONLINESIZE/10.0
+
+# 每个节点所能保存的模型数
+CAPACITY 1
+
+# 每个节点的邻居数
+NEWSCAST_CACHESIZE 10
+NEWSCAST_FREQ ONLINESIZE/3.0
+
+# 节点分组数
+GROUP_NUM 3
+
+# 压缩倍数
+COMPRESS 10
+
+# 特征数
+FEATURES 57
+
+# 初始学习率
+LAMBDA 10000
+
+# L2正则化系数
+L 0.000001
+
+# 训练协议模式，0为联邦学习，1为Gossip学习
+MODE 0
+
+CHURN_START 0
+CHURN_RANGE 1
+
+# General Simulation Properties
+network.size SIZE
+
+# Transport layer
+protocol.transport peersim.transport.UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+protocol.dropTransport peersim.transport.UnreliableTransport
+protocol.dropTransport.transport transport
+protocol.dropTransport.drop DROP
+
+# Connection layer
+protocol.overlay overlays.ChurnableNewscast
+protocol.overlay.transport dropTransport
+protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.baseFreq NEWSCAST_FREQ
+protocol.overlay.mode MODE
+
+
+# Learning layer
+protocol.learningProtocol protocol.ETreeLearningProtocol
+protocol.learningProtocol.linkable overlay
+protocol.learningProtocol.transport dropTransport
+protocol.learningProtocol.delayMean DELAY_MEAN
+protocol.learningProtocol.aggregateTime AGGREGATE_TIME
+protocol.learningProtocol.aggregateCount AGGREGATE_COUNT
+protocol.learningProtocol.rootAggregateTime ROOT_AGGREGATE_TIME
+protocol.learningProtocol.innerToRootDelay INNER_TO_ROOT_DELAY
+
+protocol.learningProtocol.modelHolderName models.BoundedModelHolder
+protocol.learningProtocol.capacity CAPACITY
+protocol.learningProtocol.modelName models.LogisticRegression
+protocol.learningProtocol.compress COMPRESS
+protocol.learningProtocol.LogisticRegression.storage FEATURES
+protocol.learningProtocol.LogisticRegression.lambda LAMBDA
+protocol.learningProtocol.LogisticRegression.l L
+
+
+# Initializers
+init.overlayInit peersim.dynamics.WireTree
+init.overlayInit.k GROUP_NUM
+init.overlayInit.protocol overlay
+
+init.instanceLoader control.InstanceLoader
+init.instanceLoader.protocol learningProtocol
+init.instanceLoader.trainFile data/spambase/spambase.tra
+init.instanceLoader.testFile data/spambase/spambase.tes
+init.instanceLoader.samplesPerNode 41
+
+init.learningProtocolStart control.MessageInitializer
+init.learningProtocolStart.protocol learningProtocol
+init.learningProtocolStart.delay DELAY
+init.learningProtocolStart.aggregateTime AGGREGATE_TIME
+init.learningProtocolStart.rootAggregateTime ROOT_AGGREGATE_TIME
+
+# Define Init Sequence
+include.init overlayInit instanceLoader learningProtocolStart 
+
+# Observers
+control.prediction control.PredictionObserver
+control.prediction.step LOGTIME
+control.prediction.protocol learningProtocol
+control.prediction.trainFile data/spambase/spambase.tra
+control.prediction.testFile data/spambase/spambase.tes
+
+# 指数分布的动态网络
+# control.znet control.EDynamicNetwork
+# control.znet.step LOGTIME
+# control.znet.mode MODE
+
+# SmartPhone分布的动态网络
+# control.znet control.ZDynamicNetwork
+# control.znet.step LOGTIME
+# control.znet.mode MODE

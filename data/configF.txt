@@ -1,0 +1,102 @@
+SIZE 100
+ONLINESIZE SIZE
+
+CYCLES 48
+CYCLE SIZE*20
+LOGTIME ONLINESIZE
+
+DELAY 0
+MINDELAY 0
+MAXDELAY 0
+DROP 0
+
+DELAY_MEAN ONLINESIZE
+DELAY_VAR ONLINESIZE/10.0
+
+CAPACITY 1
+
+NEWSCAST_CACHESIZE 99
+NEWSCAST_FREQ ONLINESIZE/10.0
+
+COMPRESS 1
+
+FEATURES 57
+LAMBDA 10000
+L 0.000001
+
+MODE 0
+
+CHURN_START 0
+CHURN_RANGE 1
+
+
+# General Simulation Properties
+network.size SIZE
+simulation.endtime CYCLE*CYCLES
+simulation.logtime CYCLE
+
+# Transport layer
+protocol.transport peersim.transport.UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+protocol.dropTransport peersim.transport.UnreliableTransport
+protocol.dropTransport.transport transport
+protocol.dropTransport.drop DROP
+
+# Connection layer
+protocol.overlay overlays.ChurnableNewscast
+protocol.overlay.transport dropTransport
+protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.baseFreq NEWSCAST_FREQ
+protocol.overlay.mode MODE
+
+# Learning layer
+protocol.learningProtocol protocol.FederatedLearningProtocol
+protocol.learningProtocol.linkable overlay
+protocol.learningProtocol.transport dropTransport
+protocol.learningProtocol.delayMean DELAY_MEAN
+protocol.learningProtocol.modelHolderName models.BoundedModelHolder
+protocol.learningProtocol.capacity CAPACITY
+protocol.learningProtocol.modelName models.LogisticRegression
+protocol.learningProtocol.compress COMPRESS
+protocol.learningProtocol.LogisticRegression.storage FEATURES
+protocol.learningProtocol.LogisticRegression.lambda LAMBDA
+protocol.learningProtocol.LogisticRegression.l L
+
+# Initializers
+init.overlayInit peersim.dynamics.WireKOut
+init.overlayInit.k NEWSCAST_CACHESIZE
+init.overlayInit.protocol overlay
+
+
+init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
+init.overlayStart.protocolID overlay
+
+init.instanceLoader control.InstanceLoader
+init.instanceLoader.protocol learningProtocol
+init.instanceLoader.trainFile data/spambase/spambase.tra
+init.instanceLoader.testFile data/spambase/spambase.tes
+init.instanceLoader.samplesPerNode 41
+
+init.learningProtocolStart control.MessageInitializer
+init.learningProtocolStart.protocol learningProtocol
+init.learningProtocolStart.delay DELAY
+
+# Define Init Sequence
+include.init overlayInit overlayStart instanceLoader learningProtocolStart
+
+# Observers
+control.prediction control.PredictionObserver
+control.prediction.step LOGTIME
+control.prediction.protocol learningProtocol
+control.prediction.trainFile data/spambase/spambase.tra
+control.prediction.testFile data/spambase/spambase.tes
+
+# control.znet control.EDynamicNetwork
+# control.znet.step LOGTIME
+# control.znet.mode MODE
+
+# control.znet control.ZDynamicNetwork
+# control.znet.step LOGTIME
+# control.znet.mode MODE
