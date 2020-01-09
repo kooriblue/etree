@@ -99,7 +99,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
 		    // 根节点聚合模型发给第二层节点
 		    if(ID == rootID) {
 		    	if(mainModels.size()>=1) {
-			    	LogisticRegression lg = (LogisticRegression)innerModel.getModel(innerModel.size()-1).clone();
+			    	LogisticRegression lg = (LogisticRegression)models.getModel(models.size()-1).clone();
 			    	double sumAge = 0.0;
 			    	DenseVector[] dvs = new DenseVector[mainModels.size()];
 			    	for (int i = 0; i < mainModels.size(); i++) {
@@ -111,7 +111,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
 			    	lg.addAge(sumAge);
 			    	DenseVector tmp = Aggregate.AggregateSubsampledImproved(dvs);
 			    	lg.Add(tmp, -1.0);
-			    	innerModel.add(lg);
+			    	models.add(lg);
 			    	mainModels = new BoundedModelHolder(numOfInnerNodes);
 		    	}
 		    	
@@ -330,25 +330,4 @@ public class ETreeLearningProtocol extends AbstractProtocol{
 	public static long[] getInner() {
 	    return innerIDs;
 	}
-
-	
-//	public void addInnerNode(Node[] nodes) {
-//	    if (innerNodes == null) {
-//	        innerNodes = new Node[nodes.length];
-//	    }
-//	    
-//	    for (int i = 0; i < nodes.length; i++) {
-//	        innerNodes[i] = (Node) nodes[i].clone();
-//	    }
-//	}
-//	
-//	public Node[] getNodes() {
-//	    Node[] nodes = new Node[innerNodes.length];
-//	    
-//	    for (int i = 0; i < innerNodes.length; i++) {
-//	        nodes[i] = (Node) innerNodes[i].clone();
-//	    }
-//	    
-//	    return nodes;
-//	}
 }

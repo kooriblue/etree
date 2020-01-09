@@ -119,7 +119,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		    else {
 		        aggregatedCount++;
 		        // δ�ﵽaggregateCount
-		        if (aggregatedCount < aggregateCount) {
+		        if (aggregatedCount % aggregateCount != 0) {
 		            activeThread(1);
 		            EDSimulator.add((long) aggregateTime, new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
 		        }
@@ -127,7 +127,6 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		        else {
 		            activeThread(2);
 		            EDSimulator.add((long)(aggregateTime+innerToRootDelay), new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
-		            aggregatedCount = 0;
 		        }
 		    }
 

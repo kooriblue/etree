@@ -17,6 +17,7 @@ import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
+import protocol.ETreeLearningProtocol;
 
 //predict并打印Loss的类
 public class PredictionObserver extends GraphObserver{
@@ -63,24 +64,26 @@ public class PredictionObserver extends GraphObserver{
 		Set<Integer> idxSet = generateIndices();
 		double sumloss = 0.0;
 		for(int i: idxSet) {
-			Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
-		    if (p instanceof BasicLearningProtocol) {
-		    	int numOfHolders = ((BasicLearningProtocol)p).size();
-		    	for (int holderIndex = 0; holderIndex < numOfHolders; holderIndex++){
-		    		ModelHolder modelHolder = ((BasicLearningProtocol)p).getModelHolder(holderIndex);
-		    		for(int j=0;j<modelHolder.size();j++) {
-		    			LogisticRegression m = (LogisticRegression)modelHolder.getModel(j);
-		    			double loss = m.ZeroOneErrorCompute(test.getInstances(),test.getLabels());
-		    			sumloss += loss;
-		    			count ++;
-		    		}
-		    	}
+		    if (i != ETreeLearningProtocol.getRoot()) {
+		        Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
+    		    if (p instanceof BasicLearningProtocol) {
+    		    	int numOfHolders = ((BasicLearningProtocol)p).size();
+    		    	for (int holderIndex = 0; holderIndex < numOfHolders; holderIndex++){
+    		    		ModelHolder modelHolder = ((BasicLearningProtocol)p).getModelHolder(holderIndex);
+    		    		for(int j=0;j<modelHolder.size();j++) {
+    		    			LogisticRegression m = (LogisticRegression)modelHolder.getModel(j);
+    		    			double loss = m.ZeroOneErrorCompute(test.getInstances(),test.getLabels());
+    		    			sumloss += loss;
+    		    			count ++;
+    		    		}
+    		    	}
+    		    }
 		    }
 		}
 		lossArr.add(sumloss/count);
 		Simulator.addLoss(sumloss/count);
-		if(index>20*47)
-			System.out.println(getClass().getCanonicalName() + " - "+lossArr.toString() + "\n");
+//		if(index>21*4*47)
+//			System.out.println(getClass().getCanonicalName() + " - "+lossArr.toString() + "\n");
 			
 			
 		index++;

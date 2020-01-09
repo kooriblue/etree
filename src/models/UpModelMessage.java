@@ -17,7 +17,7 @@ public class UpModelMessage implements ModelHolder{
     
     @Override
     public Object clone() {
-        return new DownModelMessage(src, models);
+        return new UpModelMessage(src, models);
     }
     
     public void setSrc(Node src) {

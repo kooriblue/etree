@@ -12,6 +12,7 @@ import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.core.Protocol;
+import protocol.ETreeLearningProtocol;
 
 
 //读取实例的类
@@ -76,21 +77,25 @@ public class InstanceLoader implements Control{
 			
 			int numOfSamples = dReader.getTrainSet().getSize();
 			//System.out.print(Network.size());
+			int ind = 0;
 			for (int i = 0; i < Network.size(); i++) {
-				Node node = Network.get(i);
-				Protocol protocol = node.getProtocol(pid);
-				if(protocol instanceof BasicLearningProtocol) {
-					BasicLearningProtocol lp = (BasicLearningProtocol)protocol;
-					InstanceHolder instances = new InstanceHolder(dReader.getTrainSet().getNumOfClasses(),dReader.getTrainSet().getNumOfFeatures());
-					for (int j = 0; j < samplesPerNode; j++) {
-						instances.add(dReader.getTrainSet().getInstance((i * samplesPerNode + j) % numOfSamples),dReader.getTrainSet().getLabel((i * samplesPerNode + j) % numOfSamples));
-						
-					}
-					
-					lp.setInstenceHolder(instances);
-				}
-				else
-					throw new RuntimeException("The protocol " + pid + " have to implement BasicLearningProtocol interface!");
+			    if (i != ETreeLearningProtocol.getRoot()) {
+			        Node node = Network.get(i);
+    				Protocol protocol = node.getProtocol(pid);
+    				if(protocol instanceof BasicLearningProtocol) {
+    					BasicLearningProtocol lp = (BasicLearningProtocol)protocol;
+    					InstanceHolder instances = new InstanceHolder(dReader.getTrainSet().getNumOfClasses(),dReader.getTrainSet().getNumOfFeatures());
+    					for (int j = 0; j < samplesPerNode; j++) {
+    						instances.add(dReader.getTrainSet().getInstance((ind * samplesPerNode + j) % numOfSamples),dReader.getTrainSet().getLabel((ind * samplesPerNode + j) % numOfSamples));
+    						
+    					}
+    					
+    					lp.setInstenceHolder(instances);
+    				}
+    				else
+    					throw new RuntimeException("The protocol " + pid + " have to implement BasicLearningProtocol interface!");
+    				ind++;
+			    }
 			}
 		} catch(Exception e) {
 			throw new RuntimeException("Exception has occurred in InstanceLoader!", e);

@@ -1,6 +1,6 @@
 # 网络中节点数量
-SIZE 10
-ONLINESIZE 9
+SIZE 101
+ONLINESIZE 100
 
 
 # 延迟
@@ -10,7 +10,7 @@ MAXDELAY 0
 INNER_TO_ROOT_DELAY 1
 
 # 第二层节点聚合时间间隔
-AGGREGATE_TIME 3
+AGGREGATE_TIME 10
 
 # 第二层聚合多少次后发送给根节点聚合
 AGGREGATE_COUNT 2
@@ -23,7 +23,7 @@ CYCLES 48
 LOGTIME ROOT_AGGREGATE_TIME
 
 # 结束时间和打印时间
-simulation.endtime LOGTIME*CYCLES
+simulation.endtime 96000
 simulation.logtime LOGTIME
 
 # 丢包率 1为最大
@@ -38,10 +38,10 @@ CAPACITY 1
 
 # 每个节点的邻居数
 NEWSCAST_CACHESIZE 10
-NEWSCAST_FREQ ONLINESIZE/3.0
+NEWSCAST_FREQ ONLINESIZE/10.0
 
 # 节点分组数
-GROUP_NUM 3
+GROUP_NUM 10
 
 # 压缩倍数
 COMPRESS 10
