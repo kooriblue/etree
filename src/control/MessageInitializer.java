@@ -41,7 +41,7 @@ public class MessageInitializer implements Control{
 	    mh.add(model);
 	    for (int i = 0; i < Network.size(); i++) {
 	        if ((long)i != ETreeLearningProtocol.getRoot()) {
-	            EDSimulator.add(0, new DownModelMessage(Network.get((int) Network.get(i).getParentID()), mh), Network.get(i), 1);
+	            EDSimulator.add(0, new DownModelMessage(Network.get((int) Network.get(i).getParentID()), mh, 0), Network.get(i), 1);
 	        }
 	    }
 	    

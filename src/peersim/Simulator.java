@@ -246,7 +246,7 @@ public static void exportExcel() {
     
     try {
         FileOutputStream fileOutputStream = new FileOutputStream(
-                new File("D:/koori/learning/gossipLearning/loss/loss.xls"));
+                new File("D:/koori/learning/gossipLearning/etree_loss/loss.xls"));
         wb.write(fileOutputStream);
         fileOutputStream.flush();
         fileOutputStream.close();

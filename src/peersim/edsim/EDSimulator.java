@@ -351,7 +351,7 @@ public static void nextExperiment()
 	System.err.println("EDSimulator: resetting");
 	CommonState.setPhase(CommonState.PHASE_UNKNOWN);
 	CommonState.setTime(0); // needed here
-//	CommonState.setSessionID(0);
+	CommonState.setSessionID(0);
 	controls = null;
 	ctrlSchedules = null;
 	nextlog = 0;

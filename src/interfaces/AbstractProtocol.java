@@ -137,17 +137,9 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 //			}
 		} 
 		else if (messageObj instanceof DownModelMessage) {
-		    
-			if (currentTime >= CommonState.getTime()) {
-			    passiveDownModelMsg((DownModelMessage)messageObj);
-			}
-			
+		    passiveDownModelMsg((DownModelMessage)messageObj);
 		} else if (messageObj instanceof UpModelMessage) {
-		    
-		    if (currentTime >= CommonState.getTime()) {
-		        passiveUpModelMsg((UpModelMessage)messageObj);
-		    }
-		    
+		    passiveUpModelMsg((UpModelMessage)messageObj);
 		}
 			
 	}

@@ -25,116 +25,118 @@ import utils.Compress;
 
 //联邦学习协议
 public class ETreeLearningProtocol extends AbstractProtocol{
-	private static final String PAR_MODELHOLDERNAME = "modelHolderName";
-	private static final String PAR_MODELNAME = "modelName";
-	private static final String PAR_COMPRESS = "compress";
-	
-	private final String modelHolderName;
-	private final String modelName;
-	
-	private ModelHolder models; // 该节点作为叶节点保存的模型
-	private ModelHolder innerModel; // 该节点作为第二层节点所保存的模型
-	
-	private static ModelHolder mainModels; // 根节点收到的模型
-	private static ModelHolder[] innerModels; // 第二层节点收到的模型
-	//网络带宽
-	private static int bandwidth = 200;
-	//压缩倍数
-	private final int compress;
-	
-	// 树的根节点
-	private static long rootID;
-	// 第二层节点
-	private static long[] innerIDs;
-	
-	// 第二层节点数
-	private static int numOfInnerNodes;
-	
-	public ETreeLearningProtocol(String prefix) {
-		modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
-		modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
-		compress = Configuration.getInt(prefix + "." + PAR_COMPRESS);
-		init(prefix);
-	}
-	
-	public ETreeLearningProtocol(String prefix, double delayMean, double delayVar, String modelHolderName, String modelName,int compress) {
-	    this.prefix = prefix;
-	    this.delayMean = delayMean;
-	    this.delayVar = delayVar;
-	    this.modelHolderName = modelHolderName;
-	    this.modelName = modelName;
-	    this.compress = compress;
-	    init(prefix);
-	}
-	
-	protected void init(String prefix) {
-	    try {
-	    	super.init(prefix);
-	    	models = (ModelHolder)Class.forName(modelHolderName).newInstance();
-	    	models.init(prefix);
-	    	Model model = (Model)Class.forName(modelName).newInstance();
-	    	model.init(prefix);
-	    	models.add(model);
-	    	
+    private static final String PAR_MODELHOLDERNAME = "modelHolderName";
+    private static final String PAR_MODELNAME = "modelName";
+    private static final String PAR_COMPRESS = "compress";
+    
+    private final String modelHolderName;
+    private final String modelName;
+    
+    private ModelHolder models; // 该节点作为叶节点保存的模型
+    private ModelHolder innerModel; // 该节点作为第二层节点所保存的模型
+    
+    private static ModelHolder mainModels; // 根节点收到的模型
+    private static ModelHolder[] innerModels; // 第二层节点收到的模型
+    //网络带宽
+    private static int bandwidth = 200;
+    //压缩倍数
+    private final int compress;
+    
+    // 树的根节点
+    private static long rootID;
+    // 第二层节点
+    private static long[] innerIDs;
+    
+    // 第二层节点数
+    private static int numOfInnerNodes;
+    
+    public ETreeLearningProtocol(String prefix) {
+        modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
+        modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
+        compress = Configuration.getInt(prefix + "." + PAR_COMPRESS);
+        init(prefix);
+    }
+    
+    public ETreeLearningProtocol(String prefix, double delayMean, double delayVar, String modelHolderName, String modelName,int compress) {
+        this.prefix = prefix;
+        this.delayMean = delayMean;
+        this.delayVar = delayVar;
+        this.modelHolderName = modelHolderName;
+        this.modelName = modelName;
+        this.compress = compress;
+        init(prefix);
+    }
+    
+    protected void init(String prefix) {
+        try {
+            super.init(prefix);
+            models = (ModelHolder)Class.forName(modelHolderName).newInstance();
+            models.init(prefix);
+            Model model = (Model)Class.forName(modelName).newInstance();
+            model.init(prefix);
+            models.add(model);
+            
             innerModel = (ModelHolder)Class.forName(modelHolderName).newInstance();
             innerModel.init(prefix);
             Model m = (Model)Class.forName(modelName).newInstance();
             m.init(prefix);
             innerModel.add(m);
-	    } 
-	    catch (Exception e) {
-	    	throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": " + e);
-	    }
-	}
-	
-	/*
-	   *聚合并分发模型给所有子节点
-	   *mode: 0-根节点聚合，1-内节点聚合分发到叶节点，2-内节点聚合发到根节点
-	 */
-	@Override
-	public void activeThread(int mode) {
-		if (models != null && models.size() > 0){
-		    long ID = currentNode.getID();
-		    
-		    // 根节点聚合模型发给第二层节点
-		    if(ID == rootID) {
-		    	if(mainModels.size()>=1) {
-			    	LogisticRegression lg = (LogisticRegression)models.getModel(models.size()-1).clone();
-			    	double sumAge = 0.0;
-			    	DenseVector[] dvs = new DenseVector[mainModels.size()];
-			    	for (int i = 0; i < mainModels.size(); i++) {
-			    		LogisticRegression tmp =  (LogisticRegression)mainModels.getModel(i);
-			    		sumAge += tmp.getAge();
-			    		dvs[i] = (DenseVector)tmp.getWeight().clone();
-					}
-			    	sumAge /= mainModels.size();
-			    	lg.addAge(sumAge);
-			    	DenseVector tmp = Aggregate.AggregateSubsampledImproved(dvs);
-			    	lg.Add(tmp, -1.0);
-			    	models.add(lg);
-			    	mainModels = new BoundedModelHolder(numOfInnerNodes);
-		    	}
-		    	
-		    	CommonState.setTime(currentTime);
-		    	
-				Model m = innerModel.getModel(innerModel.size() - 1);
-			    ModelHolder mh = new BoundedModelHolder(1);
-			    mh.add(m);
-		    	for (int i = 0; i < innerIDs.length; i++) {
-		    	    sendToNeighbor(new DownModelMessage(currentNode, mh), Network.get((int) innerIDs[i]));
-		    	}
-		    }
-		    else {
-		        int index = 0;
-		        for (int i = 0; i < innerIDs.length; i++) {
-		            if (ID == innerIDs[i]) {
-		                index = i;
-		                break;
-		            }
-		        }
-		        
-		        // 聚合
-		        if(innerModels[index].size()>=1) {
+        } 
+        catch (Exception e) {
+            throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": " + e);
+        }
+    }
+    
+    /*
+       *聚合并分发模型给所有子节点
+       *mode: 0-根节点聚合，1-内节点聚合分发到叶节点，2-内节点聚合发到根节点
+     */
+    @Override
+    public void activeThread(int mode) {
+        if (models != null && models.size() > 0){
+            long ID = currentNode.getID();
+            
+            // 根节点聚合模型发给第二层节点
+            if(ID == rootID) {
+                if(mainModels.size()>=1) {
+                    LogisticRegression lg = (LogisticRegression)models.getModel(models.size()-1).clone();
+                    double sumAge = 0.0;
+                    DenseVector[] dvs = new DenseVector[mainModels.size()];
+                    for (int i = 0; i < mainModels.size(); i++) {
+                        LogisticRegression tmp =  (LogisticRegression)mainModels.getModel(i);
+                        sumAge += tmp.getAge();
+                        dvs[i] = (DenseVector)tmp.getWeight().clone();
+                    }
+                    sumAge /= mainModels.size();
+                    lg.addAge(sumAge);
+                    DenseVector tmp = Aggregate.AggregateSubsampledImproved(dvs);
+                    lg.Add(tmp, -1.0);
+                    models.add(lg);
+                    mainModels = new BoundedModelHolder(numOfInnerNodes);
+                }
+                
+                CommonState.setTime(currentTime);
+                long newSessionID = CommonState.getSessionID()+1;
+                CommonState.setSessionID(newSessionID);
+                
+                Model m = innerModel.getModel(innerModel.size() - 1);
+                ModelHolder mh = new BoundedModelHolder(1);
+                mh.add(m);
+                for (int i = 0; i < innerIDs.length; i++) {
+                    sendToNeighbor(new DownModelMessage(currentNode, mh, newSessionID), Network.get((int) innerIDs[i]));
+                }
+            }
+            else {
+                int index = 0;
+                for (int i = 0; i < innerIDs.length; i++) {
+                    if (ID == innerIDs[i]) {
+                        index = i;
+                        break;
+                    }
+                }
+                
+                // 聚合
+                if(innerModels[index].size()>=1) {
                     LogisticRegression lg = (LogisticRegression)innerModel.getModel(innerModel.size()-1).clone();
                     double sumAge = 0.0;
                     DenseVector[] dvs = new DenseVector[innerModels[index].size()];
@@ -151,29 +153,40 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                     innerModels[index] = new BoundedModelHolder(((Linkable)Network.get((int) innerIDs[index]).getProtocol(2)).degree());
                 }
                 
+                long tmpTime = CommonState.getTime();
                 CommonState.setTime(currentTime);
+                if (tmpTime < currentTime) {
+                    long newSessionID = CommonState.getSessionID()+1;
+                    CommonState.setSessionID(newSessionID);
+                }
                 
                 Model m = innerModel.getModel(innerModel.size() - 1);
                 ModelHolder mh = new BoundedModelHolder(1);
                 mh.add(m);
                 
-		        // 发送给叶节点
-		        if (mode == 1) {
-	                sendToWholeNeighbor(new DownModelMessage(currentNode, mh)); 
-		        }
-		        // 发送给根节点
-		        else {
-		            sendBack(new UpModelMessage(currentNode, mh), rootID);
-		        }
-		    }
-		}
-	}
-	
-	// 收到上层节点模型的操作（根节点到第二层节点，第二层节点到叶节点）
-	@Override
-	public void passiveDownModelMsg(DownModelMessage message) {
-		for (int i = 0; message != null && i < message.size(); i ++) {
-			long ID = currentNode.getID();
+                // 发送给叶节点
+                if (mode == 1) {
+                    sendToWholeNeighbor(new DownModelMessage(currentNode, mh, CommonState.getSessionID())); 
+                }
+                // 发送给根节点
+                else {
+                    sendBack(new UpModelMessage(currentNode, mh, CommonState.getSessionID()), rootID);
+                }
+            }
+        }
+    }
+    
+    // 收到上层节点模型的操作（根节点到第二层节点，第二层节点到叶节点）
+    @Override
+    public void passiveDownModelMsg(DownModelMessage message) {
+        // 判断是否为最新的模型
+        long sessionID = message.getSessionID();
+        if (sessionID != CommonState.getSessionID()) {
+            return;
+        }
+        
+        for (int i = 0; message != null && i < message.size(); i ++) {
+            long ID = currentNode.getID();
             
             long srcID = message.getSrc().getID();
             //第二层节点接收到根节点模型，下发给叶节点
@@ -181,7 +194,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                 Model model = message.getModel(i);
                 ModelHolder mh = new BoundedModelHolder(1);
                 mh.add(model);
-                sendToWholeNeighbor(new DownModelMessage(currentNode, mh));
+                sendToWholeNeighbor(new DownModelMessage(currentNode, mh, sessionID));
             }
             // 叶节点接收到第二层节点模型，更新本地模型，sendback
             else {
@@ -226,14 +239,20 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                 bandwidth -= length;
                 ModelHolder mh = new BoundedModelHolder(1);
                 mh.add(lg);
-                sendBack(new UpModelMessage(currentNode, mh), currentNode.getParentID());
+                sendBack(new UpModelMessage(currentNode, mh, sessionID), currentNode.getParentID());
             }
-		}
-	}
-	
-	// 收到下层节点模型的操作（叶节点到第二层节点，第二层节点到根节点）
+        }
+    }
+    
+    // 收到下层节点模型的操作（叶节点到第二层节点，第二层节点到根节点）
     @Override
     public void passiveUpModelMsg(UpModelMessage message) {
+        // 判断是否为最新的模型
+        long sessionID = message.getSessionID();
+        if (sessionID != CommonState.getSessionID()) {
+            return;
+        }
+        
         for (int i = 0; message != null && i < message.size(); i ++) {
             long ID = currentNode.getID();
             
@@ -257,77 +276,77 @@ public class ETreeLearningProtocol extends AbstractProtocol{
             }
         }
     }
-	
-	@Override
-	public int size() {
-		return (models == null) ? 0 : 1;
-	}
-	
-	@Override
-	public ModelHolder getModelHolder(int index) {
-		return models;
-	}
-	
-	@Override
-	public void setModelHolder(int index, ModelHolder modelHolder) {
-		this.models = modelHolder;
-	}
-	
-	@Override
-	public boolean add(ModelHolder modelHolder) {
-		setModelHolder(0, modelHolder);
-		return true;
-	}
-	
-	@Override
-	public ModelHolder remove(int index) {
-		ModelHolder tmp = models;
-		models = null;
-	    return tmp;
-	}
+    
+    @Override
+    public int size() {
+        return (models == null) ? 0 : 1;
+    }
+    
+    @Override
+    public ModelHolder getModelHolder(int index) {
+        return models;
+    }
+    
+    @Override
+    public void setModelHolder(int index, ModelHolder modelHolder) {
+        this.models = modelHolder;
+    }
+    
+    @Override
+    public boolean add(ModelHolder modelHolder) {
+        setModelHolder(0, modelHolder);
+        return true;
+    }
+    
+    @Override
+    public ModelHolder remove(int index) {
+        ModelHolder tmp = models;
+        models = null;
+        return tmp;
+    }
 
-	@Override
-	public Object clone() {
-		return new ETreeLearningProtocol(prefix, delayMean, delayVar, modelHolderName, modelName, compress);
-	}
-	
-	public int getBandwidth() {
-		return bandwidth;
-	}
-	
-	public void resetBandwidth() {
-		this.bandwidth = 200;
-	}
-	
-	public void setBandwidth(int bandwidth) {
-		this.bandwidth = bandwidth;
-	}
-	
-	public static void setRoot(int ID) {
-	    rootID = ID;
-	}
-	
-	public static void setInner(int[] IDs) {
-	    numOfInnerNodes = IDs.length;
-	    if (innerIDs == null) {
-	        innerIDs = new long[numOfInnerNodes];
-	    }
-	    for (int i = 0; i < numOfInnerNodes; i++) {
-	        innerIDs[i] = IDs[i];
-	    }
-	    
-	    mainModels = new BoundedModelHolder(numOfInnerNodes);
-	    innerModels = new BoundedModelHolder[numOfInnerNodes];
-	    for (int i = 0; i < numOfInnerNodes; i++) {
+    @Override
+    public Object clone() {
+        return new ETreeLearningProtocol(prefix, delayMean, delayVar, modelHolderName, modelName, compress);
+    }
+    
+    public int getBandwidth() {
+        return bandwidth;
+    }
+    
+    public void resetBandwidth() {
+        this.bandwidth = 200;
+    }
+    
+    public void setBandwidth(int bandwidth) {
+        this.bandwidth = bandwidth;
+    }
+    
+    public static void setRoot(int ID) {
+        rootID = ID;
+    }
+    
+    public static void setInner(int[] IDs) {
+        numOfInnerNodes = IDs.length;
+        if (innerIDs == null) {
+            innerIDs = new long[numOfInnerNodes];
+        }
+        for (int i = 0; i < numOfInnerNodes; i++) {
+            innerIDs[i] = IDs[i];
+        }
+        
+        mainModels = new BoundedModelHolder(numOfInnerNodes);
+        innerModels = new BoundedModelHolder[numOfInnerNodes];
+        for (int i = 0; i < numOfInnerNodes; i++) {
             innerModels[i] = new BoundedModelHolder(((Linkable)Network.get((int) innerIDs[i]).getProtocol(2)).degree());
         }
-	}
-	
-	public static long getRoot() {
-	    return rootID;
-	}
-	
-	public static long[] getInner() {
-	    return innerIDs;
-	}
+    }
+    
+    public static long getRoot() {
+        return rootID;
+    }
+    
+    public static long[] getInner() {
+        return innerIDs;
+    }
 }

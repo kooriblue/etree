@@ -9,6 +9,7 @@ import interfaces.Model;
 import models.*;
 import utils.*;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 
 
 //Gossip—ßœ∞–≠“È
@@ -80,7 +81,7 @@ public class GossipLearningProtocol extends AbstractProtocol{
 			bandwidth -= length;
 		    ModelHolder mh = new BoundedModelHolder(1);
 		    mh.add(lg);
-		    sendToRandomNeighbor(new DownModelMessage(currentNode, mh));
+		    sendToRandomNeighbor(new DownModelMessage(currentNode, mh, CommonState.getSessionID()));
 		}
 	}
 	

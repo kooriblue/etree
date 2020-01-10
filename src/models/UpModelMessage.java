@@ -9,15 +9,17 @@ public class UpModelMessage implements ModelHolder{
     private static final long serialVersionUID = -1650466332477125351L;
     private Node src;
     private final ModelHolder models;
+    private long sessionID;
     
-    public UpModelMessage(Node src, ModelHolder models) {
+    public UpModelMessage(Node src, ModelHolder models, long sessionID) {
         this.src = src;
         this.models = (ModelHolder)models.clone();
+        this.sessionID = sessionID;
     }
     
     @Override
     public Object clone() {
-        return new UpModelMessage(src, models);
+        return new UpModelMessage(src, models, sessionID);
     }
     
     public void setSrc(Node src) {
@@ -26,6 +28,14 @@ public class UpModelMessage implements ModelHolder{
     
     public Node getSrc() {
         return src;
+    }
+    
+    public void setSessionID(long sessionID) {
+        this.sessionID = sessionID;
+    }
+    
+    public long getSessionID() {
+        return sessionID;
     }
 
     @Override

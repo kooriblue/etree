@@ -5,8 +5,8 @@ ONLINESIZE 100
 
 # 延迟
 DELAY 0
-MINDELAY 0
-MAXDELAY 0
+MINDELAY 1
+MAXDELAY 8
 INNER_TO_ROOT_DELAY 1
 
 # 第二层节点聚合时间间隔
@@ -23,7 +23,7 @@ CYCLES 48
 LOGTIME ROOT_AGGREGATE_TIME
 
 # 结束时间和打印时间
-simulation.endtime 96000
+simulation.endtime 9600
 simulation.logtime LOGTIME
 
 # 丢包率 1为最大
