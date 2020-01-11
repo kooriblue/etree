@@ -4,8 +4,6 @@ import models.InstanceHolder;
 import models.UpModelMessage;
 import models.DownModelMessage;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
 import message.*;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
@@ -18,7 +16,7 @@ import peersim.edsim.EDSimulator;
 import peersim.transport.Transport;
 import protocol.ETreeLearningProtocol;
 
-//³éÏóÑ§Ï°Àà
+//æŠ½è±¡å­¦ä¹ ç±»
 public abstract class AbstractProtocol implements EDProtocol, BasicLearningProtocol{
 	protected static final String PAR_DELAYMEAN = "delayMean";
 	protected double delayMean = Double.POSITIVE_INFINITY;
@@ -48,7 +46,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 	protected long sessionLength = 10000;
 	protected int sessionID = 0;
 
-	// ÒÑ¾ÛºÏµÄ´ÎÊı£¬Ã¿ÂúÒ»´ÎaggregateCountÇåÁã
+	// å·²èšåˆçš„æ¬¡æ•°ï¼Œæ¯æ»¡ä¸€æ¬¡aggregateCountæ¸…é›¶
 	private int aggregatedCount = 0;
 	
 	protected void init(String prefix) {
@@ -63,7 +61,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 	@Override
 	public abstract Object clone();
 	
-	//½«Ä£ĞÍ·¢ËÍ¸øÒ»¸öËæ»úµÄÁÚ¾Ó
+	//å°†æ¨¡å‹å‘é€ç»™ä¸€ä¸ªéšæœºçš„é‚»å±…
 	protected void sendToRandomNeighbor(DownModelMessage message) {
 		message.setSrc(currentNode);
 		Linkable overlay = getOverlay();
@@ -71,7 +69,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		getTransport().send(currentNode, randomNode, message, currentProtocolID);
 	}
 	
-	//½«Ä£ĞÍ·¢ËÍ¸øÖ¸¶¨ÁÚ¾Ó
+	//å°†æ¨¡å‹å‘é€ç»™æŒ‡å®šé‚»å±…
 	protected void sendToNeighbor(DownModelMessage message, Node dest) {
 	    getTransport().send(Network.getAggregateNode((int) currentNode.getID()), dest, message, currentProtocolID);
 	}
@@ -79,14 +77,14 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 	
 	protected void sendToWholeNeighbor(DownModelMessage message) {
         Linkable overlay = getOverlay();
-        Node randomNode = null; // »ñÈ¡µ±Ç°½ÚµãµÄµÚÒ»¸öÁÚ¾Ó
+        Node randomNode = null; // è·å–å½“å‰èŠ‚ç‚¹çš„ç¬¬ä¸€ä¸ªé‚»å±…
         for (int i = 0; i < overlay.degree(); i++) {
             randomNode = Network.get((int) overlay.getNeighbor(i).getID());
             getTransport().send(message.getSrc(), randomNode, message, currentProtocolID);
         }
     }
 	
-	//Áª°îÑ§Ï°ÖĞ×Ó½Úµã½«ÑµÁ·ºÃµÄÄ£ĞÍ´«»ØÖ÷½Úµã
+	//è”é‚¦å­¦ä¹ ä¸­å­èŠ‚ç‚¹å°†è®­ç»ƒå¥½çš„æ¨¡å‹ä¼ å›ä¸»èŠ‚ç‚¹
 //	protected void sendBack(DownModelMessage message) {
 //		message.setSrc(currentNode);
 //		Node mainNode = Network.get(0);
@@ -98,7 +96,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
         getTransport().send(message.getSrc(), destNode, message, currentProtocolID);
     }
 	
-	//EDĞ­ÒéÖĞĞèÒªÊµÏÖµÄÖ÷Òª·½·¨processEvent
+	//EDåè®®ä¸­éœ€è¦å®ç°çš„ä¸»è¦æ–¹æ³•processEvent
 	public void processEvent(Node currentNode, int currentProtocolID, Object messageObj, long time) {
 		this.currentNode = currentNode;
 		this.currentProtocolID = currentProtocolID;
@@ -107,19 +105,19 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		if ( messageObj instanceof ActiveThreadMessage || (messageObj instanceof OnlineSessionMessage && 
 		((OnlineSessionMessage)messageObj).sessionID == sessionID) ) {
 		    
-		    // ÊÇ¸ù½Úµã£¬½«ÒÑ¾ÛºÏ´ÎÊıÖØÖÃÎª0
+		    // æ˜¯æ ¹èŠ‚ç‚¹ï¼Œå°†å·²èšåˆæ¬¡æ•°é‡ç½®ä¸º0
 		    if (currentNode.getID() == ETreeLearningProtocol.getRoot()) {
 		        activeThread(0);
 		    }
-		    // ÊÇÄÚ½Úµã£¬ÒÑ¾ÛºÏ´ÎÊı¼Ó1
+		    // æ˜¯å†…èŠ‚ç‚¹ï¼Œå·²èšåˆæ¬¡æ•°åŠ 1
 		    else {
 		        aggregatedCount++;
-		        // Î´´ïµ½aggregateCount
+		        // æœªè¾¾åˆ°aggregateCount
 		        if (aggregatedCount % aggregateCount != 0) {
 		            activeThread(1);
 //		            EDSimulator.add((long) aggregateTime, new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
 		        }
-		        // ´ïµ½aggregateCount
+		        // è¾¾åˆ°aggregateCount
 		        else {
 		            activeThread(2);
 //		            EDSimulator.add((long)(aggregateTime+innerToRootDelay), new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
