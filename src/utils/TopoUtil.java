@@ -2,6 +2,7 @@ package utils;
 
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -29,7 +30,7 @@ public class TopoUtil {
 
     /**
      * Returns the adjacency matrix of the network,
-     * If value is 0, then there is no edge between two nodes
+     * If value is 0x7fffffff, then there is no edge between two nodes
      * else it represents the delay between two nodes.
      *
      * Notice that the index of node starts with 0.
@@ -41,11 +42,15 @@ public class TopoUtil {
     public static int[][] getGraph(int n, String filePath) {
         int[][] res = new int[n][n];
 
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                res[i][j] = i == j ? 0 : 0x7fffffff;
+
         try {
             FileReader fr = new FileReader(filePath);
             BufferedReader bf = new BufferedReader(fr);
             String str;
-            // 按行读取字符串
+
             while ((str = bf.readLine()) != null) {
                 String[] temp = str.split(" ");
                 int from = Integer.parseInt(temp[0])-1;
@@ -60,9 +65,9 @@ public class TopoUtil {
         }
 
          for (int i = 0; i < n; i++) {
-         for (int j = 0; j < n; j++)
-         System.out.print(res[i][j] + " ");
-         System.out.println();
+            for (int j = 0; j < n; j++)
+                System.out.printf("%15d", res[i][j]);
+            System.out.println();
          }
 
         return res;
@@ -127,6 +132,17 @@ public class TopoUtil {
 
     public static void main(String[] args) {
         int[][] g = getGraph(5, "/Users/huangjiaming/Documents/developer/etree/data/data.in");
-        System.out.println(getMinDelay(g, 0, 3));
+
+        System.out.println("minDelay: from 0 -> 3: " + getMinDelay(g, 0, 3));
+
+        System.out.println("result of GraphClustering: ");
+        GraphClustering pG = new GraphClustering(g);
+        ArrayList<ArrayList<Integer>> result = pG.getGraphPartitionResult(3);
+        for (ArrayList<Integer> tmp : result) {
+            for (Integer i : tmp) {
+                System.out.print(i + " ");
+            }
+            System.out.println();
+        }
     }
 }

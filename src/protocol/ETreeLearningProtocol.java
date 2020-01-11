@@ -16,8 +16,6 @@ import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
-import peersim.core.Node;
-import peersim.transport.Transport;
 import utils.DenseVector;
 import utils.Aggregate;
 import utils.Compress;
