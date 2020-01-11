@@ -29,7 +29,6 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import protocol.ETreeLearningProtocol;
-import sun.tools.jar.resources.jar;
 
 /**
 * Contains static methods for wiring certain kinds of graphs. The general
@@ -142,6 +141,30 @@ public static Graph wireTree( Graph g, int k, Random r ) {
 //            g.setEdge(nodeIDs[i], indexes[ind]);
 //            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
 //            ind++;
+//        }
+//    }
+//    
+//    if (j >= n) {
+//        return g;
+//    }
+//    
+//    // ѡ�������ڵ�
+//    for(int i = 1; i < k; i++) {
+//        if (j >= n) {
+//            break;
+//        }
+//        for (int l = 0; l < k; l++) {
+//            if (j < n) {
+//                int root = indexes[i];
+//                int ID = j + r.nextInt(n - j);
+//                tmp = indexes[j];
+//                indexes[j] = indexes[ID];
+//                indexes[ID] = tmp;
+//                g.setEdge(root, indexes[j]);
+//                j++;
+//            } else {
+//                break;
+//            }
 //        }
 //    }
 //    
