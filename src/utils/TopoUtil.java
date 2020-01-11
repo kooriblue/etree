@@ -74,8 +74,8 @@ public class TopoUtil {
     }
 
     /**
-     * Returns the minimum delay from start(node index) to end(node index)
-     *
+     * Returns the minimum delay from start(node index) to end(node index),
+     * if minDelay = 0x7ffffff, message can not from start to end.
      * Implemented by Dijkstra with heap
      *
      * @param graph
@@ -115,7 +115,7 @@ public class TopoUtil {
             vis[u] = true;
 
             for (int to = 0; to < n; to++) {
-                if (u != to && graph[u][to] > 0) {
+                if (u != to && graph[u][to] != 0x7fffffff) {
                     int delay = graph[u][to];
 
                     if (!vis[to] && dis[to] > dis[u] + delay) {
@@ -131,7 +131,10 @@ public class TopoUtil {
 
 
     public static void main(String[] args) {
-        int[][] g = getGraph(5, "/Users/huangjiaming/Documents/developer/etree/data/data.in");
+        int n = 5;
+        generatedGraph(5, 2, 3);
+
+        int[][] g = getGraph(n, "/Users/huangjiaming/Documents/developer/etree/data/data.in");
 
         System.out.println("minDelay: from 0 -> 3: " + getMinDelay(g, 0, 3));
 
