@@ -1,6 +1,5 @@
 package control;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import interfaces.Model;
 import interfaces.ModelHolder;
