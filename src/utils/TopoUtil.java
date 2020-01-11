@@ -8,9 +8,20 @@ import java.util.Queue;
 
 public class TopoUtil {
 
+    /**
+     * Requires numpy and cyaron,
+     * Use command to install them,
+     * pip(or conda) install numpy
+     * pip(or conda) install cyaron
+     * @param n
+     * @param delayMean
+     * @param delayVar
+     */
     public static void generatedGraph(int n, int delayMean, int delayVar) {
         Process pr;
         String exe = "python";
+
+        // It must be the absolute path where the python script in.
         String command = "/Users/huangjiaming/Documents/developer/etree/data/gen.py";
 
         String[] cmd = new String[] {exe, command, String.valueOf(n),
@@ -75,7 +86,8 @@ public class TopoUtil {
 
     /**
      * Returns the minimum delay from start(node index) to end(node index),
-     * if minDelay = 0x7ffffff, message can not from start to end.
+     * if minDelay = 0x7ffffff, it means that message can not from start to end.
+     *
      * Implemented by Dijkstra with heap
      *
      * @param graph
@@ -95,7 +107,6 @@ public class TopoUtil {
                 return this.cost - o.cost;
             }
         }
-
 
         int n = graph.length;
         boolean[] vis = new boolean[n];
@@ -129,10 +140,9 @@ public class TopoUtil {
     }
 
 
-
     public static void main(String[] args) {
         int n = 5;
-        generatedGraph(5, 2, 3);
+        generatedGraph(n, 2, 3);
 
         int[][] g = getGraph(n, "/Users/huangjiaming/Documents/developer/etree/data/data.in");
 
