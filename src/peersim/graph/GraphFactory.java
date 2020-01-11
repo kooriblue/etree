@@ -22,6 +22,8 @@ import java.util.*;
 
 import message.ActiveThreadMessage;
 import peersim.config.Configuration;
+import peersim.core.AggregateNode;
+import peersim.core.GeneralNode;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -43,80 +45,6 @@ private GraphFactory() {}
 // ==================================================================
 
 /**
-* Wires a ring lattice.
-* The added connections are defined as follows. If k is even, links to
-* i-k/2, i-k/2+1, ..., i+k/2 are added (but not to i), thus adding an
-* equal number of predecessors and successors.
-* If k is odd, then we add one more successors than predecessors.
-* For example, for k=4: 2 predecessors, 2 successors.
-* For k=5: 2 predecessors, 3 successors.
-* For k=1: each node is linked only to its successor.
-* All values are understood mod n to make the lattice circular, where n is the
-* number of nodes in g.
-* @param g the graph to be wired
-* @param k lattice parameter
-* @return returns g for convenience
-*/
-public static Graph wireRingLattice(Graph g, int k) {
-	
-	final int n = g.size();
-
-	int pred = k/2;
-	int succ = k-pred;
-
-	for(int i=0; i<n; ++i)
-	for(int j=-pred; j<=succ; ++j)
-	{
-		if( j==0 ) continue;
-		final int v = (i+j+n)%n;
-		g.setEdge(i,v);
-	}
-	return g;
-}
-
-// -------------------------------------------------------------------
-
-/**
-* Watts-Strogatz model. A bit modified though: by default assumes a directed
-* graph. This means that directed
-* links are re-wired, and the undirected edges in the original (undirected)
-* lattice are modeled
-* by double directed links pointing in opposite directions. Rewiring is done
-* with replacement, so the possibility of wiring two links to the same target
-* is positive (though very small).
-* <p>
-* Note that it is possible to pass an undirected graph as a parameter. In that
-* case the output is the directed graph produced by the method, converted to
-* an undirected graph by dropping directionality of the edges. This graph is
-* still not from the original undirected WS model though.
-* @param g the graph to be wired
-* @param k lattice parameter: this is the out-degree of a node in the
-* ring lattice before rewiring
-* @param p the probability of rewiring each 
-* @param r source of randomness
-* @return returns g for convenience
-*/
-public static Graph wireWS( Graph g, int k, double p, Random r ) {
-//XXX unintuitive to call it WS due to the slight mods
-	final int n = g.size();
-	for(int i=0; i<n; ++i)
-	for(int j=-k/2; j<=k/2; ++j)
-	{
-		if( j==0 ) continue;
-		int newedge = (i+j+n)%n;
-		if( r.nextDouble() < p )
-		{
-			newedge = r.nextInt(n-1);
-			if( newedge >= i ) newedge++; // random _other_ node
-		}
-		g.setEdge(i,newedge);
-	}
-	return g;
-}
-
-// -------------------------------------------------------------------
-
-/**
 * Random graph. Generates randomly k directed edges out of each node.
 * The neighbors
 * (edge targets) are chosen randomly without replacement from the nodes of the
@@ -128,34 +56,34 @@ public static Graph wireWS( Graph g, int k, double p, Random r ) {
 * @param r source of randomness
 * @return returns g for convenience
 */
-public static Graph wireKOut( Graph g, int k, Random r ) {
-
-	final int n = g.size();
-	if( n < 2 ) return g;
-	
-	if( n <= k ) k=n-1;
-	int[] nodes = new int[n];
-	for(int i=0; i<nodes.length; ++i) nodes[i]=i;
-	for(int i=0; i<n; ++i)
-	{
-		int j=0;
-		while(j<k)
-		{
-		    // 确保不会选到重复的邻居
-			int newedge = j+r.nextInt(n-j);
-			int tmp = nodes[j];
-			nodes[j] = nodes[newedge];
-			nodes[newedge] = tmp;
-			if( nodes[j] != i )
-			{
-				g.setEdge(i,nodes[j]);
-				j++;
-			}
-		}
-	}
-	
-	return g;
-}
+//public static Graph wireKOut( Graph g, int k, Random r ) {
+//
+//	final int n = g.size();
+//	if( n < 2 ) return g;
+//	
+//	if( n <= k ) k=n-1;
+//	int[] nodes = new int[n];
+//	for(int i=0; i<nodes.length; ++i) nodes[i]=i;
+//	for(int i=0; i<n; ++i)
+//	{
+//		int j=0;
+//		while(j<k)
+//		{
+//		    // 确保不会选到重复的邻居
+//			int newedge = j+r.nextInt(n-j);
+//			int tmp = nodes[j];
+//			nodes[j] = nodes[newedge];
+//			nodes[newedge] = tmp;
+//			if( nodes[j] != i )
+//			{
+//				g.setEdge(i,nodes[j]);
+//				j++;
+//			}
+//		}
+//	}
+//	
+//	return g;
+//}
 
 /**
 * Random graph. Generates randomly k directed edges out of each node.
@@ -174,257 +102,109 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     final int n = g.size();
     if( n < 2 ) return g;
     
+    int[] indexes = new int[n];
+    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
+    
 //    // 选择根节点
-//    int rootID = r.nextInt(n);
-//    int[] indexes = new int[n];
-//    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
-//    
-//    int j = 0;
-//    int tmp = indexes[j];
-//    indexes[j] = indexes[rootID];
+//    int ind = 0;
+//    int rootID = ind + r.nextInt(n - ind);
+//    int tmp = indexes[ind];
+//    indexes[ind] = indexes[rootID];
 //    indexes[rootID] = tmp;
-//    j++;
+//    ind++;
 //    
-//    // 选择第二层节点
-//    for (; j < k; j++) {
-//        if (j < n) {
-//            int ID = j + r.nextInt(n - j);
-//            tmp = indexes[j];
-//            indexes[j] = indexes[ID];
+//    
+//    // 分组
+//    int[] nodeIDs = new int[k]; // 第二层节点的ID
+//    int numOfLeaves = (n - 1) / k;
+//    for (int i = 0; i < k; i++) {
+//        for (int j = 0; j < numOfLeaves; j++) {
+//            int ID = ind + r.nextInt(n - ind);
+//            tmp = indexes[ind];
+//            indexes[ind] = indexes[ID];
 //            indexes[ID] = tmp;
-//            g.setEdge(rootID, indexes[j]); // 建立根节点向该节点的边
-//        } else {
-//            break;
-//        }
-//    }
-//    
-//    if (j >= n) {
-//        return g;
-//    }
-//    
-//    // 选择第三层节点
-//    for(int i = 1; i < k; i++) {
-//        if (j >= n) {
-//            break;
-//        }
-//        for (int l = 0; l < k; l++) {
-//            if (j < n) {
-//                int root = indexes[i];
-//                int ID = j + r.nextInt(n - j);
-//                tmp = indexes[j];
-//                indexes[j] = indexes[ID];
-//                indexes[ID] = tmp;
-//                g.setEdge(root, indexes[j]);
-//                j++;
-//            } else {
-//                break;
+//            if (j == 0) {
+//                nodeIDs[i] = indexes[ind];
 //            }
+//            g.setEdge(nodeIDs[i], indexes[ind]);
+//            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
+//            ind++;
+//        }
+//    }
+//    
+//    int left = (n - 1) % k;
+//    if (left > 0) {
+//        for (int i = 0; i < left; i++) {
+//            int ID = ind + r.nextInt(n - ind);
+//            tmp = indexes[ind];
+//            indexes[ind] = indexes[ID];
+//            indexes[ID] = tmp;
+//            g.setEdge(nodeIDs[i], indexes[ind]);
+//            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
+//            ind++;
 //        }
 //    }
 //    
 //    ETreeLearningProtocol.setRoot(rootID);
+//    ETreeLearningProtocol.setInner(nodeIDs);
     
-    
-    int[] indexes = new int[n];
-    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
-    
-    // 选择根节点
     int ind = 0;
-    int rootID = ind + r.nextInt(n - ind);
-    int tmp = indexes[ind];
-    indexes[ind] = indexes[rootID];
-    indexes[rootID] = tmp;
-    ind++;
-    
-    
+    int numOfAggregateNodes = 0;
     // 分组
-    int[] nodeIDs = new int[k]; // 第二层节点的ID
-    int numOfLeaves = (n - 1) / k;
     for (int i = 0; i < k; i++) {
-        for (int j = 0; j < numOfLeaves; j++) {
-            int ID = ind + r.nextInt(n - ind);
-            tmp = indexes[ind];
-            indexes[ind] = indexes[ID];
-            indexes[ID] = tmp;
-            if (j == 0) {
-                nodeIDs[i] = indexes[ind];
-            }
-            g.setEdge(nodeIDs[i], indexes[ind]);
-            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
+        AggregateNode node = new AggregateNode("");
+        node.setIndex(numOfAggregateNodes);
+        node.setIDinNetwork(i*k);
+        numOfAggregateNodes++;
+        Network.addAggregateNode(node);
+        int len = n / k;
+        for (int j = 0; j < len; j++) {
+            g.setEdge(node.getIndex(), indexes[ind], 0);
+            Network.get(indexes[ind]).setParentID(node.getIndex());
             ind++;
         }
     }
     
-    int left = (n - 1) % k;
-    if (left > 0) {
-        for (int i = 0; i < left; i++) {
-            int ID = ind + r.nextInt(n - ind);
-            tmp = indexes[ind];
-            indexes[ind] = indexes[ID];
-            indexes[ID] = tmp;
-            g.setEdge(nodeIDs[i], indexes[ind]);
-            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
-            ind++;
-        }
+    // 设置根节点
+    AggregateNode node = new AggregateNode("");
+    node.setIndex(numOfAggregateNodes);
+    node.setIDinNetwork(0);
+    Network.addAggregateNode(node);
+    for (int i = 0; i < k; i++) {
+        g.setEdge(numOfAggregateNodes, i, 1);
+        Network.getAggregateNode(i).setParentID(numOfAggregateNodes);
     }
     
-    ETreeLearningProtocol.setRoot(rootID);
-    ETreeLearningProtocol.setInner(nodeIDs);
+    ETreeLearningProtocol.setRoot(numOfAggregateNodes);
+    
     
     // 打印当前建的树
-    System.out.println("Root: " + ETreeLearningProtocol.getRoot());
+    System.out.println("Root: " + ETreeLearningProtocol.getRoot() + "(" + Network.getAggregateNode((int) ETreeLearningProtocol.getRoot()).getIDinNetwork() + ") ");
     
     System.out.println("Inner Nodes: ");
-    long[] inds = ETreeLearningProtocol.getInner();
-    for (int i = 0; i < inds.length; i++) {
-        System.out.print(inds[i] + " ");
+    
+    Linkable linkable = (Linkable) Network.getAggregateNode((int) ETreeLearningProtocol.getRoot()).getProtocol(2);
+    int len = linkable.degree();
+    
+    int[] inds = new int[len];
+
+    for (int i = 0; i < len; i++) {
+        inds[i] = (int) linkable.getNeighbor(i).getID();
+        System.out.print(inds[i] + "(" + Network.getAggregateNode((int)inds[i]).getIDinNetwork() + ")(" + Network.getAggregateNode((int)inds[i]).getParentID() + ") ");
     }
     System.out.println();
     
     for (int i = 0; i < inds.length; i++) {
-        System.out.print("Leaves of Node " + inds[i] + ": ");
-        Linkable ol = (Linkable)Network.get((int) inds[i]).getProtocol(2);
+        System.out.print("Leaves of Node " + inds[i] + "(" + Network.getAggregateNode((int)inds[i]).getIDinNetwork() + ") " + ": ");
+        Linkable ol = (Linkable)Network.getAggregateNode((int) inds[i]).getProtocol(2);
         int num = ol.degree();
         for (int l = 0; l < num; l++) {
-            System.out.print(ol.getNeighbor(l).getID() + " ");
+            System.out.print(ol.getNeighbor(l).getID() + "(" + ol.getNeighbor(l).getParentID() + ") ");
         }
         System.out.println();
     }
     
     return g;
-}
-
-// -------------------------------------------------------------------
-
-/**
-* A sink star.
-* Wires a sink star topology adding a link to 0 from all other nodes.
-* @param g the graph to be wired
-* @return returns g for convenience
-*/
-public static Graph wireStar( Graph g ) {
-
-	final int n = g.size();
-	for(int i=1; i<n; ++i) g.setEdge(i,0);
-	return g;
-}
-
-// -------------------------------------------------------------------
-
-/**
-* A regular rooted tree.
-* Wires a regular rooted tree. The root is 0, it has links to 1,...,k.
-* In general, node i has links to i*k+1,...,i*k+k.
-* @param g the graph to be wired
-* @param k the number of outgoing links of nodes in the tree (except
-* leaves that have zero out-links, and exactly one node that might have
-* less than k).
-* @return returns g for convenience
-*/
-public static Graph wireRegRootedTree( Graph g, int k ) {
-
-	if( k==0 ) return g;
-	final int n = g.size();
-	int i=0; // node we wire
-	int j=1; // next free node to link to
-	while(j<n)
-	{
-		for(int l=0; l<k && j<n; ++l,++j) g.setEdge(i,j);
-		++i;
-	}
-	return g;
-}
-
-// -------------------------------------------------------------------
-
-/**
-* A hypercube.
-* Wires a hypercube.
-* For a node i the following links are added: i xor 2^0, i xor 2^1, etc.
-* this define a log(graphsize) dimensional hypercube (if the log is an
-* integer).
-* @param g the graph to be wired
-* @return returns g for convenience
-*/
-public static Graph wireHypercube( Graph g ) {
-
-	final int n = g.size();
-	if(n<=1) return g;
-	final int highestone = Integer.highestOneBit(n-1); // not zero
-	for(int i=0; i<n; ++i)
-	{
-		int mask = highestone;
-		while(mask>0)
-		{
-			int j = i^mask;
-			if(j<n) g.setEdge(i,j);
-			mask = mask >> 1;
-		}
-		
-	}
-	return g;
-}
-
-// -------------------------------------------------------------------
-
-/**
-* This contains the implementation of the Barabasi-Albert model
-* of growing scale free networks. The original model is described in
-* <a href="http://arxiv.org/abs/cond-mat/0106096">
-http://arxiv.org/abs/cond-mat/0106096</a>.
-* It also works if the graph is directed, in which case the model is a
-* variation of the BA model
-* described in <a href="http://arxiv.org/pdf/cond-mat/0408391">
-http://arxiv.org/pdf/cond-mat/0408391</a>. In both cases, the number of the
-* initial set of nodes is the same as the degree parameter, and no links are
-* added. The first added node is connected to all of the initial nodes,
-* and after that the BA model is used normally.
-* @param k the number of edges that are generated for each new node, also
-* the number of initial nodes (that have no edges).
-* @param r the randomness to be used
-* @return returns g for convenience
-*/
-public static Graph wireScaleFreeBA( Graph g, int k, Random r ) {
-
-	final int nodes = g.size();
-	if( nodes <= k ) return g;
-	
-	// edge i has ends (ends[2*i],ends[2*i+1])
-	int[] ends = new int[2*k*(nodes-k)];
-	
-	// Add initial edges from k to 0,1,...,k-1
-	for(int i=0; i < k; i++)
-	{
-		g.setEdge(k,i);
-		ends[2*i]=k;
-		ends[2*i+1]=i;
-	}
-	
-	int len = 2*k; // edges drawn so far is len/2
-	for(int i=k+1; i < nodes; i++) // over the remaining nodes
-	{
-		for (int j=0; j < k; j++) // over the new edges
-		{
-			int target;
-			do
-			{
-				target = ends[r.nextInt(len)]; 
-				int m=0;
-				while( m<j && ends[len+2*m+1]!=target) ++m;
-				if(m==j) break;
-				// we don't check in the graph because
-				// this wire method should accept graphs
-				// that already have edges.
-			}
-			while(true);
-			g.setEdge(i,target);
-			ends[len+2*j]=i;
-			ends[len+2*j+1]=target;
-		}
-		len += 2*k;
-	}
-
-	return g;
 }
 
 // -------------------------------------------------------------------

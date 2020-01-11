@@ -66,14 +66,6 @@ public static final int PHASE_UNKNOWN = 0;
 private static long time = 0;
 
 /**
- * Current session ID. Note that this value is simulator independent, all simulation
- * models have a notion related to time. For example, in the cycle based model,
- * the cycle id gives time, while in even driven simulations there is a more
- * realistic notion of time.
- */
-private static long sessionID = 0;
-
-/**
  * The maximal value {@link #time} can ever take.
  */
 private static long endtime = -1;
@@ -161,20 +153,6 @@ public static long getTime()
 	return time;
 }
 
-//=================================================================
-
-
-/**
-* Returns current session ID. In event-driven simulations, returns the current
-* session ID (a long-value).
-* In cycle-driven simulations, returns the current cycle (a long that
-* can safely be cast into an integer).
-*/
-public static long getSessionID()
-{
- return sessionID;
-}
-
 
 //-----------------------------------------------------------------
 
@@ -201,16 +179,6 @@ public static int getIntTime()
 public static void setTime(long t)
 {
 	time = t;
-}
-
-//-----------------------------------------------------------------
-
-/**
-* Sets the current session ID. 
-*/
-public static void setSessionID(long sessID)
-{
-  sessionID = sessID;
 }
 
 //-----------------------------------------------------------------

@@ -159,17 +159,31 @@ public boolean directed() { return true; }
 * The behaviour of this method is affected by parameter {@link #wireDirected}.
 * If it is false, then the opposite edge is set too.
 */
-public boolean setEdge( int i, int j ) {
+public boolean setEdge( int i, int j, int mode ) {
 // XXX slightly unintuitive behavior but makes sense when understood
 	
-	if( !wireDirected ) 
+    // 聚合节点到叶节点
+    if (mode == 0) {
+        if( !wireDirected ) 
 		((Linkable)Network.node[j].getProtocol(protocolID)
-		).addNeighbor(Network.node[i]);
-
-
-	return
-		((Linkable)Network.node[i].getProtocol(protocolID)
-		).addNeighbor(Network.node[j]);
+		).addNeighbor(Network.aggregateNodes[i]);
+    
+    
+    	return
+    		((Linkable)Network.aggregateNodes[i].getProtocol(protocolID)
+    		).addNeighbor(Network.node[j]);
+    }
+	// 聚合节点到聚合节点
+    else {
+        if( !wireDirected ) 
+            ((Linkable)Network.aggregateNodes[j].getProtocol(protocolID)
+            ).addNeighbor(Network.aggregateNodes[i]);
+        
+        
+            return
+                ((Linkable)Network.aggregateNodes[i].getProtocol(protocolID)
+                ).addNeighbor(Network.aggregateNodes[j]);
+    }
 }
 
 // ---------------------------------------------------------------

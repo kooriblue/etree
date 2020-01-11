@@ -1,7 +1,10 @@
 # 网络中节点数量
-SIZE 101
+SIZE 100
 ONLINESIZE 100
+network.initialCapacity 200
 
+# 层数
+LAYER_NUM 3
 
 # 延迟
 DELAY 0
@@ -9,8 +12,8 @@ MINDELAY 1
 MAXDELAY 8
 INNER_TO_ROOT_DELAY 1
 
-# 第二层节点聚合时间间隔
-AGGREGATE_TIME 10
+# 收到多少模型聚合
+AGGREGATE_PERCENT 0.8
 
 # 第二层聚合多少次后发送给根节点聚合
 AGGREGATE_COUNT 2
@@ -23,7 +26,7 @@ CYCLES 48
 LOGTIME ROOT_AGGREGATE_TIME
 
 # 结束时间和打印时间
-simulation.endtime 9600
+simulation.endtime 96000
 simulation.logtime LOGTIME
 
 # 丢包率 1为最大
@@ -86,7 +89,7 @@ protocol.learningProtocol protocol.ETreeLearningProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport dropTransport
 protocol.learningProtocol.delayMean DELAY_MEAN
-protocol.learningProtocol.aggregateTime AGGREGATE_TIME
+protocol.learningProtocol.aggregatePercent AGGREGATE_PERCENT
 protocol.learningProtocol.aggregateCount AGGREGATE_COUNT
 protocol.learningProtocol.rootAggregateTime ROOT_AGGREGATE_TIME
 protocol.learningProtocol.innerToRootDelay INNER_TO_ROOT_DELAY
@@ -122,7 +125,7 @@ include.init overlayInit instanceLoader learningProtocolStart
 
 # Observers
 control.prediction control.PredictionObserver
-control.prediction.step LOGTIME
+control.prediction.step 60
 control.prediction.protocol learningProtocol
 control.prediction.trainFile data/spambase/spambase.tra
 control.prediction.testFile data/spambase/spambase.tes

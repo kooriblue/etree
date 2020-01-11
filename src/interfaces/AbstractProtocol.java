@@ -26,8 +26,8 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 	protected static final String PAR_DELAYVAR = "delayVar";
 	protected double delayVar = 1.0;
 
-    protected static final String PAR_AGGREGATE_TIME = "aggregateTime";
-    protected double aggregateTime = 3.0;
+    protected static final String PAR_AGGREGATE_PERCENT = "aggregatePercent";
+    protected double aggregatePercent = 0.8;
 
     protected static final String PAR_AGGREGATE_COUNT = "aggregateCount";
     protected int aggregateCount = 2;
@@ -55,7 +55,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		this.prefix = prefix;
 		delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
 		delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
-		aggregateTime = Configuration.getDouble(prefix + "." + PAR_AGGREGATE_TIME, 3.0);
+		aggregatePercent = Configuration.getDouble(prefix + "." + PAR_AGGREGATE_PERCENT, 0.8);
 		aggregateCount = Configuration.getInt(prefix + "." + PAR_AGGREGATE_COUNT, 2);
 		rootAggregateTime = Configuration.getDouble(prefix + "." + PAR_ROOT_AGGREGATE_TIME, 7);
 	}
@@ -73,18 +73,16 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 	
 	//将模型发送给指定邻居
 	protected void sendToNeighbor(DownModelMessage message, Node dest) {
-	    message.setSrc(currentNode);
-	    getTransport().send(currentNode, dest, message, currentProtocolID);
+	    getTransport().send(Network.getAggregateNode((int) currentNode.getID()), dest, message, currentProtocolID);
 	}
 	
 	
 	protected void sendToWholeNeighbor(DownModelMessage message) {
-        message.setSrc(currentNode);
         Linkable overlay = getOverlay();
         Node randomNode = null; // 获取当前节点的第一个邻居
         for (int i = 0; i < overlay.degree(); i++) {
-            randomNode = overlay.getNeighbor(i);
-            getTransport().send(currentNode, randomNode, message, currentProtocolID);
+            randomNode = Network.get((int) overlay.getNeighbor(i).getID());
+            getTransport().send(message.getSrc(), randomNode, message, currentProtocolID);
         }
     }
 	
@@ -96,9 +94,8 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 //	}
 	
 	protected void sendBack(UpModelMessage message, long rootID) {
-        message.setSrc(currentNode);
-        Node destNode = Network.get((int) rootID);
-        getTransport().send(currentNode, destNode, message, currentProtocolID);
+        Node destNode = Network.getAggregateNode((int) rootID);
+        getTransport().send(message.getSrc(), destNode, message, currentProtocolID);
     }
 	
 	//ED协议中需要实现的主要方法processEvent
@@ -113,7 +110,6 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		    // 是根节点，将已聚合次数重置为0
 		    if (currentNode.getID() == ETreeLearningProtocol.getRoot()) {
 		        activeThread(0);
-		        EDSimulator.add((long) rootAggregateTime, new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
 		    }
 		    // 是内节点，已聚合次数加1
 		    else {
@@ -121,12 +117,12 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		        // 未达到aggregateCount
 		        if (aggregatedCount % aggregateCount != 0) {
 		            activeThread(1);
-		            EDSimulator.add((long) aggregateTime, new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
+//		            EDSimulator.add((long) aggregateTime, new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
 		        }
 		        // 达到aggregateCount
 		        else {
 		            activeThread(2);
-		            EDSimulator.add((long)(aggregateTime+innerToRootDelay), new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
+//		            EDSimulator.add((long)(aggregateTime+innerToRootDelay), new OnlineSessionMessage(sessionID), currentNode, currentProtocolID);
 		        }
 		    }
 

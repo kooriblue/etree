@@ -156,7 +156,7 @@ public int size()
  */
 public void add(long time, Object event, Node node, byte pid) 
 {
-	add(time,event,node,pid,CommonState.r.nextInt(1 << pbits));
+	add(time,event,node,pid,1 + CommonState.r.nextInt((1 << pbits) - 1));
 }
 
 //--------------------------------------------------------------------------

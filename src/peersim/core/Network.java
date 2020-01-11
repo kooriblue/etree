@@ -85,11 +85,13 @@ private static final String PAR_SIZE = "network.size";
 * {@link #size()} items of the array.
 */
 static Node[] node = null;
+static AggregateNode[] aggregateNodes = null;
 
 /**
 * Actual size of the network.
 */
 private static int len;
+private static int numOfAggregateNode;
 
 /**
 * The prototype node which is used to populate the simulation via cloning.
@@ -113,16 +115,20 @@ public static void reset() {
 	{
 		// not first experiment
 		while( len>0 ) remove(); // this is to call onKill on all nodes
+        while( numOfAggregateNode>0 ) removeAggregateNodes(); // this is to call onKill on all nodes
 		prototype = null;
 		node = null;
+		aggregateNodes = null;
 	}
 	
 	len = Configuration.getInt(PAR_SIZE);
+	numOfAggregateNode = 0;
 	int maxlen = Configuration.getInt(PAR_MAXSIZE,len);
 	if( maxlen < len ) throw new IllegalArgumentException(
 			PAR_MAXSIZE+" is less than "+PAR_SIZE);
 
 	node = new Node[maxlen];
+	aggregateNodes = new AggregateNode[maxlen];
 	
 	// creating prototype node
 	Node tmp = null;
@@ -158,6 +164,10 @@ private Network() {}
 
 /** Number of nodes currently in the network */
 public static int size() { return len; }
+//==================================================================
+
+/** Number of nodes currently in the network */
+public static int getNumOfAggregateNodes() { return numOfAggregateNode; }
 
 // ------------------------------------------------------------------
 
@@ -203,6 +213,15 @@ public static void add( Node n ) {
 	len++;
 }
 
+//------------------------------------------------------------------
+
+public static void addAggregateNode( AggregateNode n ) {
+ 
+ aggregateNodes[numOfAggregateNode] = n;
+ n.setIndex(numOfAggregateNode);
+ numOfAggregateNode++;
+}
+
 // ------------------------------------------------------------------
 
 /**
@@ -215,6 +234,20 @@ public static void add( Node n ) {
 public static Node get( int index ) {
 	
 	return node[index];
+}
+
+//------------------------------------------------------------------
+
+/**
+* Returns node with the given index. Note that the same node will normally
+* have a different index in different times.
+* This can be used as a random access iterator.
+* This method does not perform range checks to increase efficiency.
+* The maximal valid index is {@link #size()}.
+*/
+public static Node getAggregateNode( int index ) {
+ 
+ return aggregateNodes[index];
 }
 
 // ------------------------------------------------------------------
@@ -230,6 +263,21 @@ public static Node remove() {
 	len--;
 	n.setFailState(Fallible.DEAD);
 	return n;
+}
+
+//------------------------------------------------------------------
+
+/**
+* The node at the end of the list is removed. Returns the removed node.
+* It also sets the fail state of the node to {@link Fallible#DEAD}.
+*/
+public static Node removeAggregateNodes() {
+ 
+ AggregateNode n = aggregateNodes[numOfAggregateNode-1]; // if len was zero this throws and exception
+ aggregateNodes[numOfAggregateNode-1]=null;
+ numOfAggregateNode--;
+ n.setFailState(Fallible.DEAD);
+ return n;
 }
 
 // ------------------------------------------------------------------

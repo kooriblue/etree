@@ -64,7 +64,7 @@ public class PredictionObserver extends GraphObserver{
 		Set<Integer> idxSet = generateIndices();
 		double sumloss = 0.0;
 		for(int i: idxSet) {
-		    if (i != ETreeLearningProtocol.getRoot()) {
+		    if (i < Configuration.getInt("SIZE")) {
 		        Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
     		    if (p instanceof BasicLearningProtocol) {
     		    	int numOfHolders = ((BasicLearningProtocol)p).size();

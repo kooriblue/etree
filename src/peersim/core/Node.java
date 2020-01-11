@@ -77,6 +77,22 @@ public void setParentID(long pID);
 
 public long getParentID();
 
+public void setIDinNetwork(long id);
+
+public long getIDinNetwork();
+
+public void setType(int type);
+
+public int getType();
+
+public void setRouterID(int routerID);
+
+public int getRouterID();
+
+
+public long getSessionID();
+public void setSessionID(long sessID);
+
 /**
  * Clones the node. It is defined as part of the interface
  * to change the access right to public and to get rid of the

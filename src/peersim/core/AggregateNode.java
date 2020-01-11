@@ -15,7 +15,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-		
+        
 package peersim.core;
 
 import peersim.config.*;
@@ -24,14 +24,14 @@ import peersim.config.*;
 * This is the default {@link Node} class that is used to compose the
 * {@link Network}.
 */
-public class GeneralNode implements Node {
+public class AggregateNode implements Node {
 
 
 // ================= fields ========================================
 // =================================================================
 
 /** used to generate unique IDs */
-private static long counterID = -1;
+private static long counterID = 0;
 
 /**
 * The protocols on this node.
@@ -57,7 +57,9 @@ protected int failstate = Fallible.OK;
 */
 private long ID;
 
-private long parentID;
+private long parentID; // ID of aggregate nodes
+
+private long IDinNetwork;
 
 /**
  * 节点所在的最高层
@@ -80,36 +82,36 @@ private long sessionID;
 * (components that have type {@value peersim.core.Node#PAR_PROT}) from
 * the configuration.
 */
-public GeneralNode(String prefix) {
-	
-	String[] names = Configuration.getNames(PAR_PROT);
-	CommonState.setNode(this);
-	ID=nextID();
-	protocol = new Protocol[names.length];
-	for (int i=0; i < names.length; i++) {
-		CommonState.setPid(i);
-		Protocol p = (Protocol) 
-			Configuration.getInstance(names[i]);
-		protocol[i] = p; 
-	}
+public AggregateNode(String prefix) {
+    
+    String[] names = Configuration.getNames(PAR_PROT);
+    CommonState.setNode(this);
+    ID=nextID();
+    protocol = new Protocol[names.length];
+    for (int i=0; i < names.length; i++) {
+        CommonState.setPid(i);
+        Protocol p = (Protocol) 
+            Configuration.getInstance(names[i]);
+        protocol[i] = p; 
+    }
 }
 
 
 // -----------------------------------------------------------------
 
 public Object clone() {
-	
-	GeneralNode result = null;
-	try { result=(GeneralNode)super.clone(); }
-	catch( CloneNotSupportedException e ) {} // never happens
-	result.protocol = new Protocol[protocol.length];
-	CommonState.setNode(result);
-	result.ID=nextID();
-	for(int i=0; i<protocol.length; ++i) {
-		CommonState.setPid(i);
-		result.protocol[i] = (Protocol)protocol[i].clone();
-	}
-	return result;
+    
+    AggregateNode result = null;
+    try { result=(AggregateNode)super.clone(); }
+    catch( CloneNotSupportedException e ) {} // never happens
+    result.protocol = new Protocol[protocol.length];
+    CommonState.setNode(result);
+    result.ID=nextID();
+    for(int i=0; i<protocol.length; ++i) {
+        CommonState.setPid(i);
+        result.protocol[i] = (Protocol)protocol[i].clone();
+    }
+    return result;
 }
 
 // -----------------------------------------------------------------
@@ -117,7 +119,7 @@ public Object clone() {
 /** returns the next unique ID */
 private long nextID() {
 
-	return counterID++;
+    return counterID++;
 }
 
 // =============== public methods ==================================
@@ -125,30 +127,30 @@ private long nextID() {
 
 
 public void setFailState(int failState) {
-	
-	// after a node is dead, all operations on it are errors by definition
-	if(failstate==DEAD && failState!=DEAD) throw new IllegalStateException(
-		"Cannot change fail state: node is already DEAD");
-	switch(failState)
-	{
-		case OK:
-			failstate=OK;
-			break;
-		case DEAD:
-			//protocol = null;
-			index = -1;
-			failstate = DEAD;
-			for(int i=0;i<protocol.length;++i)
-				if(protocol[i] instanceof Cleanable)
-					((Cleanable)protocol[i]).onKill();
-			break;
-		case DOWN:
-			failstate = DOWN;
-			break;
-		default:
-			throw new IllegalArgumentException(
-				"failState="+failState);
-	}
+    
+    // after a node is dead, all operations on it are errors by definition
+    if(failstate==DEAD && failState!=DEAD) throw new IllegalStateException(
+        "Cannot change fail state: node is already DEAD");
+    switch(failState)
+    {
+        case OK:
+            failstate=OK;
+            break;
+        case DEAD:
+            //protocol = null;
+            index = -1;
+            failstate = DEAD;
+            for(int i=0;i<protocol.length;++i)
+                if(protocol[i] instanceof Cleanable)
+                    ((Cleanable)protocol[i]).onKill();
+            break;
+        case DOWN:
+            failstate = DOWN;
+            break;
+        default:
+            throw new IllegalArgumentException(
+                "failState="+failState);
+    }
 }
 
 // -----------------------------------------------------------------
@@ -174,7 +176,7 @@ public int getIndex() { return index; }
 //------------------------------------------------------------------
 
 public void setIndex(int index) { this.index = index; }
-	
+    
 //------------------------------------------------------------------
 
 /**
@@ -183,9 +185,9 @@ public void setIndex(int index) { this.index = index; }
 */
 public long getID() { return ID; }
 
-public void setParentID(long pID) { this.parentID = pID; }
+public void setIDinNetwork(long id) { this.IDinNetwork = id; }
 
-public long getParentID() { return parentID; }
+public long getIDinNetwork() { return IDinNetwork; }
 
 //------------------------------------------------------------------
 
@@ -207,13 +209,13 @@ public void setRouterID(int routerID) { this.routerID = routerID; }
 
 public String toString() 
 {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append("ID: "+ID+" index: "+index+"\n");
-	for(int i=0; i<protocol.length; ++i)
-	{
-		buffer.append("protocol["+i+"]="+protocol[i]+"\n");
-	}
-	return buffer.toString();
+    StringBuffer buffer = new StringBuffer();
+    buffer.append("ID: "+ID+" index: "+index+"\n");
+    for(int i=0; i<protocol.length; ++i)
+    {
+        buffer.append("protocol["+i+"]="+protocol[i]+"\n");
+    }
+    return buffer.toString();
 }
 
 //------------------------------------------------------------------
@@ -223,14 +225,14 @@ public int hashCode() { return (int)getID(); }
 
 
 @Override
-public void setIDinNetwork(long id) {
-    return;
+public void setParentID(long pID) {
+    this.parentID = pID;
 }
 
 
 @Override
-public long getIDinNetwork() {
-    return ID;
+public long getParentID() {
+    return parentID;
 }
 
 

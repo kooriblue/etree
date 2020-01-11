@@ -22,36 +22,40 @@ public class MessageInitializer implements Control{
 	private final int pid;
 	private static final String PAR_DELAY = "delay";
 	private final int delay;
-	private static final String PAR_AGGREGATE_TIME = "aggregateTime";
-	private final int aggregateTime;
+//	private static final String PAR_AGGREGATE_TIME = "aggregateTime";
+//	private final int aggregateTime;
     private static final String PAR_ROOT_AGGREGATE_TIME = "rootAggregateTime";
     private final int rootAggregateTime;
 	
 	public MessageInitializer(String prefix) {
 		pid = Configuration.getPid(prefix + "." + PAR_PROT);
 		delay = Configuration.getInt(prefix + "." + PAR_DELAY, 0);
-		aggregateTime = Configuration.getInt(prefix + "." + PAR_AGGREGATE_TIME, 3);
+//		aggregateTime = Configuration.getInt(prefix + "." + PAR_AGGREGATE_TIME, 3);
 		rootAggregateTime = Configuration.getInt(prefix + "." + PAR_ROOT_AGGREGATE_TIME, 7);
 	}	
 	
 	@Override
 	public boolean execute() {
-	    Model model = new LogisticRegression(57);
-	    ModelHolder mh = new BoundedModelHolder(1);
-	    mh.add(model);
-	    for (int i = 0; i < Network.size(); i++) {
-	        if ((long)i != ETreeLearningProtocol.getRoot()) {
-	            EDSimulator.add(0, new DownModelMessage(Network.get((int) Network.get(i).getParentID()), mh, 0), Network.get(i), 1);
-	        }
-	    }
 	    
-	    long[] innerIDs = ETreeLearningProtocol.getInner();
-	    for (int i = 0; i < innerIDs.length; i++) {
-	        EDSimulator.add(aggregateTime, ActiveThreadMessage.getInstance(), Network.get((int) innerIDs[i]), pid);
-	    }
+//	    Model model = new LogisticRegression(57);
+//	    ModelHolder mh = new BoundedModelHolder(1);
+//	    mh.add(model);
+//	    for (int i = 0; i < Configuration.getInt("SIZE"); i++) {
+//	        if ((long)i != ETreeLearningProtocol.getRoot()) {
+//	            EDSimulator.add(0, new DownModelMessage(Network.get((int) Network.get(i).getParentID()), mh, 0, 1), Network.get(i), 1);
+//	        }
+//	    }
+//	    
+//	    long[] innerIDs = ETreeLearningProtocol.getInner();
+//	    for (int i = 0; i < innerIDs.length; i++) {
+//	        EDSimulator.add(aggregateTime, ActiveThreadMessage.getInstance(), Network.get((int) innerIDs[i]), pid);
+//	    }
+//	    
+//	    EDSimulator.add(rootAggregateTime, ActiveThreadMessage.getInstance(), Network.get((int) ETreeLearningProtocol.getRoot()), pid);
 	    
-	    EDSimulator.add(rootAggregateTime, ActiveThreadMessage.getInstance(), Network.get((int) ETreeLearningProtocol.getRoot()), pid);
-	    
+	    // 从根节点聚合模型并发送开始
+	    EDSimulator.add(0, ActiveThreadMessage.getInstance(), Network.getAggregateNode((int) ETreeLearningProtocol.getRoot()), pid);
+   
 		return false;
 	}
 }

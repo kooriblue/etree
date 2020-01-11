@@ -81,7 +81,7 @@ public class GossipLearningProtocol extends AbstractProtocol{
 			bandwidth -= length;
 		    ModelHolder mh = new BoundedModelHolder(1);
 		    mh.add(lg);
-		    sendToRandomNeighbor(new DownModelMessage(currentNode, mh, CommonState.getSessionID()));
+		    sendToRandomNeighbor(new DownModelMessage(currentNode, mh, CommonState.getSessionID(), 1));
 		}
 	}
 	

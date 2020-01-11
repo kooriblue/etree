@@ -79,23 +79,21 @@ public class InstanceLoader implements Control{
 			//System.out.print(Network.size());
 			int ind = 0;
 			for (int i = 0; i < Network.size(); i++) {
-			    if (i != ETreeLearningProtocol.getRoot()) {
-			        Node node = Network.get(i);
-    				Protocol protocol = node.getProtocol(pid);
-    				if(protocol instanceof BasicLearningProtocol) {
-    					BasicLearningProtocol lp = (BasicLearningProtocol)protocol;
-    					InstanceHolder instances = new InstanceHolder(dReader.getTrainSet().getNumOfClasses(),dReader.getTrainSet().getNumOfFeatures());
-    					for (int j = 0; j < samplesPerNode; j++) {
-    						instances.add(dReader.getTrainSet().getInstance((ind * samplesPerNode + j) % numOfSamples),dReader.getTrainSet().getLabel((ind * samplesPerNode + j) % numOfSamples));
-    						
-    					}
-    					
-    					lp.setInstenceHolder(instances);
-    				}
-    				else
-    					throw new RuntimeException("The protocol " + pid + " have to implement BasicLearningProtocol interface!");
-    				ind++;
-			    }
+		        Node node = Network.get(i);
+				Protocol protocol = node.getProtocol(pid);
+				if(protocol instanceof BasicLearningProtocol) {
+					BasicLearningProtocol lp = (BasicLearningProtocol)protocol;
+					InstanceHolder instances = new InstanceHolder(dReader.getTrainSet().getNumOfClasses(),dReader.getTrainSet().getNumOfFeatures());
+					for (int j = 0; j < samplesPerNode; j++) {
+						instances.add(dReader.getTrainSet().getInstance((ind * samplesPerNode + j) % numOfSamples),dReader.getTrainSet().getLabel((ind * samplesPerNode + j) % numOfSamples));
+						
+					}
+					
+					lp.setInstenceHolder(instances);
+				}
+				else
+					throw new RuntimeException("The protocol " + pid + " have to implement BasicLearningProtocol interface!");
+				ind++;
 			}
 		} catch(Exception e) {
 			throw new RuntimeException("Exception has occurred in InstanceLoader!", e);

@@ -277,11 +277,7 @@ private static boolean executeNext() {
 		return true;
 	}
 	
-//	CommonState.setTime(time);
-	
-	if (ev.event instanceof ControlEvent) {
-	    CommonState.setTime(time);
-	}
+	CommonState.setTime(time);
 	
 	int pid = ev.pid;
 	if (ev.node == null)
@@ -351,11 +347,11 @@ public static void nextExperiment()
 	System.err.println("EDSimulator: resetting");
 	CommonState.setPhase(CommonState.PHASE_UNKNOWN);
 	CommonState.setTime(0); // needed here
-	CommonState.setSessionID(0);
 	controls = null;
 	ctrlSchedules = null;
 	nextlog = 0;
 	Network.reset(); // 初始化节点
+	
 	System.err.println("EDSimulator: running initializers");
 	runInitializers();
 	scheduleControls();
@@ -407,6 +403,22 @@ public static void add(long delay, Object event, Node node, int pid)
 	long time = CommonState.getTime();
 	if( endtime - time > delay ) // check like this to deal with overflow 
 		heap.add(time+delay, event, node, (byte) pid);
+}
+
+public static void add(long delay, Object event, Node node, int pid, int priority)
+{
+    if (delay < 0)
+        throw new IllegalArgumentException("Protocol "+
+            node.getProtocol(pid)+" is trying to add event "+
+            event+" with a negative delay: "+delay);
+    if (pid > Byte.MAX_VALUE) 
+        throw new IllegalArgumentException(
+                "This version does not support more than " 
+                + Byte.MAX_VALUE + " protocols");
+    
+    long time = CommonState.getTime();
+    if( endtime - time > delay ) // check like this to deal with overflow 
+        heap.add(time+delay, event, node, (byte) pid, priority);
 }
 
 }

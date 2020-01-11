@@ -73,7 +73,7 @@ public interface Graph {
 	* If the graph is
 	* undirected, sets the edge (j,i) as well. Optional operation.
 	*/
-	public boolean setEdge(int i, int j);
+	public boolean setEdge(int i, int j, int mode);
 
 	/**
 	* Removes given edge, returns true if it existed before. If the graph is

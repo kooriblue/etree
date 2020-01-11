@@ -10,16 +10,18 @@ public class DownModelMessage implements ModelHolder{
     private Node src;
     private final ModelHolder models;
     private long sessionID;
+    private int type;
     
-    public DownModelMessage(Node src, ModelHolder models, long sessionID) {
+    public DownModelMessage(Node src, ModelHolder models, long sessionID, int type) {
         this.src = src;
         this.models = (ModelHolder)models.clone();
         this.sessionID = sessionID;
+        this.type = type;
     }
     
     @Override
     public Object clone() {
-        return new DownModelMessage(src, models, sessionID);
+        return new DownModelMessage(src, models, sessionID, type);
     }
     
     public void setSrc(Node src) {
@@ -36,6 +38,14 @@ public class DownModelMessage implements ModelHolder{
     
     public long getSessionID() {
         return sessionID;
+    }
+    
+    public void setType(int type) {
+        this.type = type;
+    }
+    
+    public int getType() {
+        return type;
     }
 
     @Override
