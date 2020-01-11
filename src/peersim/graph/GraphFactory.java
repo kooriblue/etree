@@ -27,7 +27,6 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import protocol.ETreeLearningProtocol;
-import sun.tools.jar.resources.jar;
 
 /**
 * Contains static methods for wiring certain kinds of graphs. The general
@@ -141,7 +140,7 @@ public static Graph wireKOut( Graph g, int k, Random r ) {
 		int j=0;
 		while(j<k)
 		{
-		    // È·±£²»»áÑ¡µ½ÖØ¸´µÄÁÚ¾Ó
+		    // È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½Ú¾ï¿½
 			int newedge = j+r.nextInt(n-j);
 			int tmp = nodes[j];
 			nodes[j] = nodes[newedge];
@@ -174,7 +173,7 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     final int n = g.size();
     if( n < 2 ) return g;
     
-//    // Ñ¡Ôñ¸ù½Úµã
+//    // Ñ¡ï¿½ï¿½ï¿½ï¿½Úµï¿½
 //    int rootID = r.nextInt(n);
 //    int[] indexes = new int[n];
 //    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
@@ -185,14 +184,14 @@ public static Graph wireTree( Graph g, int k, Random r ) {
 //    indexes[rootID] = tmp;
 //    j++;
 //    
-//    // Ñ¡ÔñµÚ¶þ²ã½Úµã
+//    // Ñ¡ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½
 //    for (; j < k; j++) {
 //        if (j < n) {
 //            int ID = j + r.nextInt(n - j);
 //            tmp = indexes[j];
 //            indexes[j] = indexes[ID];
 //            indexes[ID] = tmp;
-//            g.setEdge(rootID, indexes[j]); // ½¨Á¢¸ù½ÚµãÏò¸Ã½ÚµãµÄ±ß
+//            g.setEdge(rootID, indexes[j]); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Ã½Úµï¿½Ä±ï¿½
 //        } else {
 //            break;
 //        }
@@ -202,7 +201,7 @@ public static Graph wireTree( Graph g, int k, Random r ) {
 //        return g;
 //    }
 //    
-//    // Ñ¡ÔñµÚÈý²ã½Úµã
+//    // Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½
 //    for(int i = 1; i < k; i++) {
 //        if (j >= n) {
 //            break;
@@ -228,7 +227,7 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     int[] indexes = new int[n];
     for(int i=0; i<indexes.length; ++i) indexes[i]=i;
     
-    // Ñ¡Ôñ¸ù½Úµã
+    // Ñ¡ï¿½ï¿½ï¿½ï¿½Úµï¿½
     int ind = 0;
     int rootID = ind + r.nextInt(n - ind);
     int tmp = indexes[ind];
@@ -237,8 +236,8 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     ind++;
     
     
-    // ·Ö×é
-    int[] nodeIDs = new int[k]; // µÚ¶þ²ã½ÚµãµÄID
+    // ï¿½ï¿½ï¿½ï¿½
+    int[] nodeIDs = new int[k]; // ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½ID
     int numOfLeaves = (n - 1) / k;
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < numOfLeaves; j++) {
@@ -271,7 +270,7 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     ETreeLearningProtocol.setRoot(rootID);
     ETreeLearningProtocol.setInner(nodeIDs);
     
-    // ´òÓ¡µ±Ç°½¨µÄÊ÷
+    // ï¿½ï¿½Ó¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     System.out.println("Root: " + ETreeLearningProtocol.getRoot());
     
     System.out.println("Inner Nodes: ");

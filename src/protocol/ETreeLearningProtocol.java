@@ -3,7 +3,6 @@ package protocol;
 import java.security.SecureRandom;
 import java.util.Vector;
 
-import com.sun.javafx.image.IntToBytePixelConverter;
 
 import interfaces.AbstractProtocol;
 import interfaces.Model;
@@ -23,7 +22,7 @@ import utils.DenseVector;
 import utils.Aggregate;
 import utils.Compress;
 
-//Áª°îÑ§Ï°Ð­Òé
+//ï¿½ï¿½ï¿½ï¿½Ñ§Ï°Ð­ï¿½ï¿½
 public class ETreeLearningProtocol extends AbstractProtocol{
     private static final String PAR_MODELHOLDERNAME = "modelHolderName";
     private static final String PAR_MODELNAME = "modelName";
@@ -32,22 +31,22 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     private final String modelHolderName;
     private final String modelName;
     
-    private ModelHolder models; // ¸Ã½Úµã×÷ÎªÒ¶½Úµã±£´æµÄÄ£ÐÍ
-    private ModelHolder innerModel; // ¸Ã½Úµã×÷ÎªµÚ¶þ²ã½ÚµãËù±£´æµÄÄ£ÐÍ
+    private ModelHolder models; // ï¿½Ã½Úµï¿½ï¿½ï¿½ÎªÒ¶ï¿½Úµã±£ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
+    private ModelHolder innerModel; // ï¿½Ã½Úµï¿½ï¿½ï¿½Îªï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
     
-    private static ModelHolder mainModels; // ¸ù½ÚµãÊÕµ½µÄÄ£ÐÍ
-    private static ModelHolder[] innerModels; // µÚ¶þ²ã½ÚµãÊÕµ½µÄÄ£ÐÍ
-    //ÍøÂç´ø¿í
+    private static ModelHolder mainModels; // ï¿½ï¿½ï¿½Úµï¿½ï¿½Õµï¿½ï¿½ï¿½Ä£ï¿½ï¿½
+    private static ModelHolder[] innerModels; // ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½Õµï¿½ï¿½ï¿½Ä£ï¿½ï¿½
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private static int bandwidth = 200;
-    //Ñ¹Ëõ±¶Êý
+    //Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private final int compress;
     
-    // Ê÷µÄ¸ù½Úµã
+    // ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½Úµï¿½
     private static long rootID;
-    // µÚ¶þ²ã½Úµã
+    // ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½
     private static long[] innerIDs;
     
-    // µÚ¶þ²ã½ÚµãÊý
+    // ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½
     private static int numOfInnerNodes;
     
     public ETreeLearningProtocol(String prefix) {
@@ -88,15 +87,15 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     }
     
     /*
-       *¾ÛºÏ²¢·Ö·¢Ä£ÐÍ¸øËùÓÐ×Ó½Úµã
-       *mode: 0-¸ù½Úµã¾ÛºÏ£¬1-ÄÚ½Úµã¾ÛºÏ·Ö·¢µ½Ò¶½Úµã£¬2-ÄÚ½Úµã¾ÛºÏ·¢µ½¸ù½Úµã
+       *ï¿½ÛºÏ²ï¿½ï¿½Ö·ï¿½Ä£ï¿½Í¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó½Úµï¿½
+       *mode: 0-ï¿½ï¿½ï¿½Úµï¿½ÛºÏ£ï¿½1-ï¿½Ú½Úµï¿½ÛºÏ·Ö·ï¿½ï¿½ï¿½Ò¶ï¿½Úµã£¬2-ï¿½Ú½Úµï¿½ÛºÏ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½
      */
     @Override
     public void activeThread(int mode) {
         if (models != null && models.size() > 0){
             long ID = currentNode.getID();
             
-            // ¸ù½Úµã¾ÛºÏÄ£ÐÍ·¢¸øµÚ¶þ²ã½Úµã
+            // ï¿½ï¿½ï¿½Úµï¿½Ûºï¿½Ä£ï¿½Í·ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½
             if(ID == rootID) {
                 if(mainModels.size()>=1) {
                     LogisticRegression lg = (LogisticRegression)models.getModel(models.size()-1).clone();
@@ -135,7 +134,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                     }
                 }
                 
-                // ¾ÛºÏ
+                // ï¿½Ûºï¿½
                 if(innerModels[index].size()>=1) {
                     LogisticRegression lg = (LogisticRegression)innerModel.getModel(innerModel.size()-1).clone();
                     double sumAge = 0.0;
@@ -164,11 +163,11 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                 ModelHolder mh = new BoundedModelHolder(1);
                 mh.add(m);
                 
-                // ·¢ËÍ¸øÒ¶½Úµã
+                // ï¿½ï¿½ï¿½Í¸ï¿½Ò¶ï¿½Úµï¿½
                 if (mode == 1) {
                     sendToWholeNeighbor(new DownModelMessage(currentNode, mh, CommonState.getSessionID())); 
                 }
-                // ·¢ËÍ¸ø¸ù½Úµã
+                // ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ï¿½Úµï¿½
                 else {
                     sendBack(new UpModelMessage(currentNode, mh, CommonState.getSessionID()), rootID);
                 }
@@ -176,10 +175,10 @@ public class ETreeLearningProtocol extends AbstractProtocol{
         }
     }
     
-    // ÊÕµ½ÉÏ²ã½ÚµãÄ£ÐÍµÄ²Ù×÷£¨¸ù½Úµãµ½µÚ¶þ²ã½Úµã£¬µÚ¶þ²ã½Úµãµ½Ò¶½Úµã£©
+    // ï¿½Õµï¿½ï¿½Ï²ï¿½Úµï¿½Ä£ï¿½ÍµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµãµ½ï¿½Ú¶ï¿½ï¿½ï¿½Úµã£¬ï¿½Ú¶ï¿½ï¿½ï¿½Úµãµ½Ò¶ï¿½Úµã£©
     @Override
     public void passiveDownModelMsg(DownModelMessage message) {
-        // ÅÐ¶ÏÊÇ·ñÎª×îÐÂµÄÄ£ÐÍ
+        // ï¿½Ð¶ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½Âµï¿½Ä£ï¿½ï¿½
         long sessionID = message.getSessionID();
         if (sessionID != CommonState.getSessionID()) {
             return;
@@ -189,14 +188,14 @@ public class ETreeLearningProtocol extends AbstractProtocol{
             long ID = currentNode.getID();
             
             long srcID = message.getSrc().getID();
-            //µÚ¶þ²ã½Úµã½ÓÊÕµ½¸ù½ÚµãÄ£ÐÍ£¬ÏÂ·¢¸øÒ¶½Úµã
+            //ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Úµï¿½Ä£ï¿½Í£ï¿½ï¿½Â·ï¿½ï¿½ï¿½Ò¶ï¿½Úµï¿½
             if (srcID == rootID) {
                 Model model = message.getModel(i);
                 ModelHolder mh = new BoundedModelHolder(1);
                 mh.add(model);
                 sendToWholeNeighbor(new DownModelMessage(currentNode, mh, sessionID));
             }
-            // Ò¶½Úµã½ÓÊÕµ½µÚ¶þ²ã½ÚµãÄ£ÐÍ£¬¸üÐÂ±¾µØÄ£ÐÍ£¬sendback
+            // Ò¶ï¿½Úµï¿½ï¿½ï¿½Õµï¿½ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½Ä£ï¿½Í£ï¿½ï¿½ï¿½ï¿½Â±ï¿½ï¿½ï¿½Ä£ï¿½Í£ï¿½sendback
             else {
                 Model model = message.getModel(i);
                 LogisticRegression tmp = (LogisticRegression)model.clone();
@@ -244,10 +243,10 @@ public class ETreeLearningProtocol extends AbstractProtocol{
         }
     }
     
-    // ÊÕµ½ÏÂ²ã½ÚµãÄ£ÐÍµÄ²Ù×÷£¨Ò¶½Úµãµ½µÚ¶þ²ã½Úµã£¬µÚ¶þ²ã½Úµãµ½¸ù½Úµã£©
+    // ï¿½Õµï¿½ï¿½Â²ï¿½Úµï¿½Ä£ï¿½ÍµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½Ò¶ï¿½Úµãµ½ï¿½Ú¶ï¿½ï¿½ï¿½Úµã£¬ï¿½Ú¶ï¿½ï¿½ï¿½Úµãµ½ï¿½ï¿½ï¿½Úµã£©
     @Override
     public void passiveUpModelMsg(UpModelMessage message) {
-        // ÅÐ¶ÏÊÇ·ñÎª×îÐÂµÄÄ£ÐÍ
+        // ï¿½Ð¶ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½Âµï¿½Ä£ï¿½ï¿½
         long sessionID = message.getSessionID();
         if (sessionID != CommonState.getSessionID()) {
             return;
@@ -256,12 +255,12 @@ public class ETreeLearningProtocol extends AbstractProtocol{
         for (int i = 0; message != null && i < message.size(); i ++) {
             long ID = currentNode.getID();
             
-            // ¸ù½ÚµãÊÕµ½µÚ¶þ²ã½ÚµãµÄÄ£ÐÍ
+            // ï¿½ï¿½ï¿½Úµï¿½ï¿½Õµï¿½ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½Ä£ï¿½ï¿½
             if(ID == rootID) {
                 Model model = message.getModel(i);
                 mainModels.add(model);
             }
-            // µÚ¶þ²ã½ÚµãÊÕµ½Ò¶½ÚµãµÄÄ£ÐÍ
+            // ï¿½Ú¶ï¿½ï¿½ï¿½Úµï¿½ï¿½Õµï¿½Ò¶ï¿½Úµï¿½ï¿½Ä£ï¿½ï¿½
             else {
                 int index = 0;
                 for (int j = 0; j < innerIDs.length; j++) {

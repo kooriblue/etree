@@ -1,6 +1,5 @@
 package control;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import interfaces.Model;
 import interfaces.ModelHolder;
@@ -16,7 +15,7 @@ import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import protocol.ETreeLearningProtocol;
 
-//Message³õÊ¼»¯µÄÀà
+//Messageï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 public class MessageInitializer implements Control{
 	private static final String PAR_PROT = "protocol";
 	private final int pid;
