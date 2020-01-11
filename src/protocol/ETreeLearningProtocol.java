@@ -38,6 +38,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     private ModelHolder models; // 该节点作为叶节点保存的模型
     private ModelHolder innerModel; // 该节点作为第二层节点所保存的模型
     
+<<<<<<< HEAD
     private ModelHolder mainModels; // 根节点收到的模型
     private static ModelHolder[] innerModels; // 第二层节点收到的模型
     //网络带宽
@@ -88,8 +89,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     
     /*
        *聚合并分发模型给所有子节点
-       *mode: 0-根节点聚合，1-内节点聚合分发到叶节点，2-内节点聚合发到根节点
-     */
+       *mode: 0-根节点聚合，1-内节点聚合分发到叶节点，2-内节点聚合发到根节点     */
     @Override
     public void activeThread(int mode) {
         if (models != null && models.size() > 0){
