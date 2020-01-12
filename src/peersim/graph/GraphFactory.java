@@ -20,12 +20,9 @@ package peersim.graph;
 
 import java.util.*;
 
-import message.ActiveThreadMessage;
-import peersim.config.Configuration;
 import peersim.core.Linkable;
 import peersim.core.Network;
-import peersim.core.Node;
-import peersim.edsim.EDSimulator;
+
 import protocol.ETreeLearningProtocol;
 
 /**
@@ -172,101 +169,27 @@ public static Graph wireTree( Graph g, int k, Random r ) {
 
     final int n = g.size();
     if( n < 2 ) return g;
-    
-//    // ѡ����ڵ�
-//    int rootID = r.nextInt(n);
-//    int[] indexes = new int[n];
-//    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
-//    
-//    int j = 0;
-//    int tmp = indexes[j];
-//    indexes[j] = indexes[rootID];
-//    indexes[rootID] = tmp;
-//    j++;
-//    
-//    // ѡ��ڶ���ڵ�
-//    for (; j < k; j++) {
-//        if (j < n) {
-//            int ID = j + r.nextInt(n - j);
-//            tmp = indexes[j];
-//            indexes[j] = indexes[ID];
-//            indexes[ID] = tmp;
-//            g.setEdge(rootID, indexes[j]); // �������ڵ���ýڵ�ı�
-//        } else {
-//            break;
-//        }
-//    }
-//    
-//    if (j >= n) {
-//        return g;
-//    }
-//    
-//    // ѡ�������ڵ�
-//    for(int i = 1; i < k; i++) {
-//        if (j >= n) {
-//            break;
-//        }
-//        for (int l = 0; l < k; l++) {
-//            if (j < n) {
-//                int root = indexes[i];
-//                int ID = j + r.nextInt(n - j);
-//                tmp = indexes[j];
-//                indexes[j] = indexes[ID];
-//                indexes[ID] = tmp;
-//                g.setEdge(root, indexes[j]);
-//                j++;
-//            } else {
-//                break;
-//            }
-//        }
-//    }
-//    
-//    ETreeLearningProtocol.setRoot(rootID);
-    
-    
-    int[] indexes = new int[n];
-    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
-    
-    // ѡ����ڵ�
-    int ind = 0;
-    int rootID = ind + r.nextInt(n - ind);
-    int tmp = indexes[ind];
-    indexes[ind] = indexes[rootID];
-    indexes[rootID] = tmp;
-    ind++;
-    
-    
-    // ����
-    int[] nodeIDs = new int[k]; // �ڶ���ڵ��ID
-    int numOfLeaves = (n - 1) / k;
+
+    ArrayList<Integer> indexes = new ArrayList(n);
+
+    for (int i = 0; i < n; i++) indexes.add(i);
+    // shuffle the indexes
+    Collections.shuffle(indexes);
+    // selected rootId, which is the last one in the indexes[]
+    int rootID = indexes.get(n-1);
+
+    int k_num = (int)Math.ceil( (n-1)*1.0 / k);
+    int[] nodeIDs = new int[k];
+
     for (int i = 0; i < k; i++) {
-        for (int j = 0; j < numOfLeaves; j++) {
-            int ID = ind + r.nextInt(n - ind);
-            tmp = indexes[ind];
-            indexes[ind] = indexes[ID];
-            indexes[ID] = tmp;
-            if (j == 0) {
-                nodeIDs[i] = indexes[ind];
-            }
-            g.setEdge(nodeIDs[i], indexes[ind]);
-            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
-            ind++;
-        }
-    }
-    
-    int left = (n - 1) % k;
-    if (left > 0) {
-        for (int i = 0; i < left; i++) {
-            int ID = ind + r.nextInt(n - ind);
-            tmp = indexes[ind];
-            indexes[ind] = indexes[ID];
-            indexes[ID] = tmp;
-            g.setEdge(nodeIDs[i], indexes[ind]);
-            Network.get(indexes[ind]).setParentID(nodeIDs[i]);
-            ind++;
-        }
-    }
-    
+    	nodeIDs[i] = indexes.get(k_num*i);
+    	g.setEdge(rootID, nodeIDs[i]);
+    	for (int j = k_num*i; j < Math.min(n-1, k_num*(i+1)); j++) {
+    		g.setEdge(nodeIDs[i], indexes.get(j));
+    		Network.get( indexes.get((j)) ).setParentID(nodeIDs[i]);
+		}
+	}
+
     ETreeLearningProtocol.setRoot(rootID);
     ETreeLearningProtocol.setInner(nodeIDs);
     

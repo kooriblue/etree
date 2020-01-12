@@ -32,6 +32,9 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 
     protected static final String PAR_ROOT_AGGREGATE_TIME = "rootAggregateTime";
     protected double rootAggregateTime = 7.0;
+
+	protected static final String PAR_AGGREGATE_PERCENT = "aggregatePercent";
+	protected double aggregatePercent = 0.8;
     
     protected static final String PAR_INNER_TO_ROOT_DELAY = "innerToRootDelay";
     protected double innerToRootDelay = 1.0;
@@ -56,6 +59,7 @@ public abstract class AbstractProtocol implements EDProtocol, BasicLearningProto
 		aggregateTime = Configuration.getDouble(prefix + "." + PAR_AGGREGATE_TIME, 3.0);
 		aggregateCount = Configuration.getInt(prefix + "." + PAR_AGGREGATE_COUNT, 2);
 		rootAggregateTime = Configuration.getDouble(prefix + "." + PAR_ROOT_AGGREGATE_TIME, 7);
+		aggregatePercent = Configuration.getDouble(prefix + "." + PAR_AGGREGATE_PERCENT, 0.8);
 	}
 	
 	@Override

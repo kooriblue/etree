@@ -21,6 +21,7 @@ package peersim.transport;
 import peersim.config.*;
 import peersim.core.*;
 import peersim.edsim.*;
+import utils.TopoUtil;
 
 
 /**
@@ -106,6 +107,10 @@ public void send(Node src, Node dest, Object msg, int pid)
 {
 	// avoid calling nextLong if possible
 	long delay = (range==1?min:min + CommonState.r.nextLong(range));
+//	int[][] g = TopoUtil.getGraph(Network.size(), "/Users/huangjiaming/Documents/developer/etree/data/data100.in");
+//	long delay = TopoUtil.getMinDelay( g, (int)src.getID(), (int)dest.getID() );
+//	System.err.println("From Node " + src.getID() + " to Node "
+//	+ dest.getID() + ", delay is: " + delay);
 	EDSimulator.add(delay, msg, dest, pid);
 }
 

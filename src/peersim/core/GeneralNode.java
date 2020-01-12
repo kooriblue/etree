@@ -46,7 +46,17 @@ protected Protocol[] protocol = null;
 */
 private int index;
 
-/**
+private int sessionID;
+
+	public void setSessionID(int sessinoId) {
+		this.sessionID = sessinoId;
+	}
+
+	public int getSessionID() {
+		return this.sessionID;
+	}
+
+	/**
 * The fail state of the node.
 */
 protected int failstate = Fallible.OK;

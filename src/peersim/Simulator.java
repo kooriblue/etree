@@ -197,7 +197,7 @@ public static void main(String[] args) throws IOException
 			System.err.println("Random seed: "+
 				CommonState.r.getLastSeed());
 			System.out.println("\n\n");
-			
+
 			// XXX could be done through reflection, but
 			// this is easier to read.
 			switch(SIMID)

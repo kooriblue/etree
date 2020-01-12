@@ -1,6 +1,9 @@
 package utils;
 
 
+import peersim.config.Configuration;
+import peersim.core.CommonState;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
@@ -75,11 +78,11 @@ public class TopoUtil {
             e.printStackTrace();
         }
 
-         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++)
-                System.out.printf("%15d", res[i][j]);
-            System.out.println();
-         }
+//         for (int i = 0; i < n; i++) {
+//            for (int j = 0; j < n; j++)
+//                System.out.printf("%15d", res[i][j]);
+//            System.out.println();
+//         }
 
         return res;
     }
@@ -141,16 +144,17 @@ public class TopoUtil {
 
 
     public static void main(String[] args) {
-        int n = 5;
-        generatedGraph(n, 2, 3);
 
-        int[][] g = getGraph(n, "/Users/huangjiaming/Documents/developer/etree/data/data.in");
+        int n = 100;
+        //generatedGraph(n, 2, 3);
+
+        int[][] g = getGraph(n, "/Users/huangjiaming/Documents/developer/etree/data/data100.in");
 
         System.out.println("minDelay: from 0 -> 3: " + getMinDelay(g, 0, 3));
 
         System.out.println("result of GraphClustering: ");
         GraphClustering pG = new GraphClustering(g);
-        ArrayList<ArrayList<Integer>> result = pG.getGraphPartitionResult(3);
+        ArrayList<ArrayList<Integer>> result = pG.getGraphPartitionResult(41);
         for (ArrayList<Integer> tmp : result) {
             for (Integer i : tmp) {
                 System.out.print(i + " ");

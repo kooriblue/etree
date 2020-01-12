@@ -7,6 +7,7 @@ import java.util.Vector;
 import interfaces.AbstractProtocol;
 import interfaces.Model;
 import interfaces.ModelHolder;
+import message.OnlineSessionMessage;
 import models.BoundedModelHolder;
 import models.LogisticRegression;
 import models.UpModelMessage;
@@ -16,6 +17,7 @@ import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
+import peersim.edsim.EDSimulator;
 import utils.DenseVector;
 import utils.Aggregate;
 import utils.Compress;
@@ -95,7 +97,8 @@ public class ETreeLearningProtocol extends AbstractProtocol{
             
             // ���ڵ�ۺ�ģ�ͷ����ڶ���ڵ�
             if(ID == rootID) {
-                if(mainModels.size()>=1) {
+                int numOfChildren = ((Linkable)currentNode.getProtocol(2)).degree();
+                if(mainModels.size()>=(int)(numOfChildren*aggregatePercent)) {
                     LogisticRegression lg = (LogisticRegression)models.getModel(models.size()-1).clone();
                     double sumAge = 0.0;
                     DenseVector[] dvs = new DenseVector[mainModels.size()];
@@ -134,6 +137,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                 
                 // �ۺ�
                 if(innerModels[index].size()>=1) {
+//                    System.out.println("innerModels[index] size: "+innerModels[index].size());
                     LogisticRegression lg = (LogisticRegression)innerModel.getModel(innerModel.size()-1).clone();
                     double sumAge = 0.0;
                     DenseVector[] dvs = new DenseVector[innerModels[index].size()];
@@ -244,17 +248,23 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     // �յ��²�ڵ�ģ�͵Ĳ�����Ҷ�ڵ㵽�ڶ���ڵ㣬�ڶ���ڵ㵽���ڵ㣩
     @Override
     public void passiveUpModelMsg(UpModelMessage message) {
-        // �ж��Ƿ�Ϊ���µ�ģ��
-        long sessionID = message.getSessionID();
-        if (sessionID != CommonState.getSessionID()) {
-            return;
-        }
-        
+
         for (int i = 0; message != null && i < message.size(); i ++) {
             long ID = currentNode.getID();
-            
-            // ���ڵ��յ��ڶ���ڵ��ģ��
+
             if(ID == rootID) {
+
+                int numOfChildren = ((Linkable)currentNode.getProtocol(2)).degree();
+                if (mainModels.size() >= (int)(numOfChildren*aggregatePercent)) {
+                    EDSimulator.add(0, new OnlineSessionMessage(0), currentNode, currentProtocolID);
+                } else {
+
+                    if (message.getSessionID() == currentNode.getSessionID()*aggregateCount) {
+                        Model model = message.getModel(i);
+                        ((ETreeLearningProtocol)currentNode.getProtocol(1)).addMainModel(model);
+                    }
+                }
+
                 Model model = message.getModel(i);
                 mainModels.add(model);
             }
@@ -267,7 +277,7 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                         break;
                     }
                 }
-                
+
                 Model model = message.getModel(i);
                 innerModels[index].add(model);
             }
@@ -345,5 +355,9 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     
     public static long[] getInner() {
         return innerIDs;
+    }
+
+    public void addMainModel(Model m) {
+        this.mainModels.add(m);
     }
 }

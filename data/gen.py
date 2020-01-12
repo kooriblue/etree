@@ -3,7 +3,7 @@ import random
 from sys import argv
 import numpy as np
 
-test_data = IO(file_prefix="./data/data", data_id="")
+test_data = IO(file_prefix="./data100", data_id="")
 
 n = int(argv[1])
 delayMean = int(argv[2])

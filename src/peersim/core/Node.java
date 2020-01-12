@@ -55,6 +55,7 @@ public int protocolSize();
  */
 public void setIndex(int index);
 
+
 /**
  * Returns the index of this node. It is such that
  * <code>Network.get(n.getIndex())</code> returns n. This index can
@@ -76,6 +77,10 @@ public long getID();
 public void setParentID(long pID);
 
 public long getParentID();
+
+public void setSessionID(int sessinoId);
+public int getSessionID();
+
 
 /**
  * Clones the node. It is defined as part of the interface
