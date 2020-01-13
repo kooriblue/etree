@@ -13,7 +13,6 @@ import models.LogisticRegression;
 import models.UpModelMessage;
 import models.DownModelMessage;
 import peersim.config.Configuration;
-import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;

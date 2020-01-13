@@ -19,7 +19,7 @@ import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
 import protocol.ETreeLearningProtocol;
 
-//predict²¢´òÓ¡LossµÄÀà
+//predictï¿½ï¿½ï¿½ï¿½Ó¡Lossï¿½ï¿½ï¿½ï¿½
 public class PredictionObserver extends GraphObserver{
 	private static final String PAR_PROT = "protocol";
 	private static final String PAR_SUFFIX = "suffix";
@@ -57,7 +57,7 @@ public class PredictionObserver extends GraphObserver{
 	    return indices;
 	  }
 	
-	//¼ÆËãÕû¸öÍøÂçÖÐµÄlossµÄÆ½¾ùÖµ²¢´òÓ¡
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½lossï¿½ï¿½Æ½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Ó¡
 	public boolean execute() {
 		int count = 0;
 		updateGraph();
@@ -81,7 +81,7 @@ public class PredictionObserver extends GraphObserver{
 		    }
 		}
 		lossArr.add(sumloss/count);
-		Simulator.addLoss(sumloss/count);
+		Simulator.addLoss(CommonState.getTime(), sumloss/count);
 //		if(index>21*4*47)
 //			System.out.println(getClass().getCanonicalName() + " - "+lossArr.toString() + "\n");
 			
@@ -89,7 +89,7 @@ public class PredictionObserver extends GraphObserver{
 		index++;
 		System.out.printf(CommonState.getTime()+"    "+ index + "    "+sumloss/count+"\n");
 		
-		//Ã¿Ò»ÂÖ±ä»¯ºóÖØÖÃ´ø¿í
+		//Ã¿Ò»ï¿½Ö±ä»¯ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½
 		BasicLearningProtocol ab = (BasicLearningProtocol)((Node) g.getNode(0)).getProtocol(pid);
 		ab.resetBandwidth();
 

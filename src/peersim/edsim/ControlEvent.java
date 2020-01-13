@@ -65,7 +65,7 @@ public ControlEvent(Control control, Scheduler scheduler, int order)
 	this.order = order;
 	this.scheduler = scheduler;
 	long next = scheduler.getNext();
-	if( next>=0 ) EDSimulator.addControlEvent(next, order, this);
+//	if( next>=0 ) EDSimulator.addControlEvent(next, order, this);
 }
 
 //---------------------------------------------------------------------
