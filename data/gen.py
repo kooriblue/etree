@@ -3,11 +3,11 @@ import random
 from sys import argv
 import numpy as np
 
-test_data = IO(file_prefix="./data100", data_id="")
-
 n = int(argv[1])
 delayMean = int(argv[2])
 delayVar = int(argv[3])
+
+test_data = IO(file_prefix="./data"+str(n), data_id="")
 
 m = random.randint(n, n*(n-1)//2)
 
