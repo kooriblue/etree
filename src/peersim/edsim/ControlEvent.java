@@ -28,7 +28,7 @@ import peersim.core.Scheduler;
  * @author Alberto Montresor
  * @version $Revision: 1.5 $
  */
-class ControlEvent
+public class ControlEvent
 {
 
 //---------------------------------------------------------------------
@@ -65,7 +65,7 @@ public ControlEvent(Control control, Scheduler scheduler, int order)
 	this.order = order;
 	this.scheduler = scheduler;
 	long next = scheduler.getNext();
-	if( next>=0 ) EDSimulator.addControlEvent(next, order, this);
+//	if( next>=0 ) EDSimulator.addControlEvent(next, order, this);
 }
 
 //---------------------------------------------------------------------
@@ -78,8 +78,8 @@ public ControlEvent(Control control, Scheduler scheduler, int order)
 */
 public boolean execute() {
 	boolean ret = control.execute();
-	long next = scheduler.getNext();
-	if( next>=0 ) EDSimulator.addControlEvent(next, order, this);
+//	long next = scheduler.getNext();
+//	if( next>=0 ) EDSimulator.addControlEvent(next, order, this);
 	return ret;
 }
 

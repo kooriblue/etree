@@ -20,6 +20,7 @@ import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
+import peersim.edsim.ControlEvent;
 import peersim.edsim.EDSimulator;
 import peersim.transport.Transport;
 import utils.DenseVector;
@@ -38,7 +39,6 @@ public class ETreeLearningProtocol extends AbstractProtocol{
     private ModelHolder models; // 该节点作为叶节点保存的模型
     private ModelHolder innerModel; // 该节点作为第二层节点所保存的模型
     
-<<<<<<< HEAD
     private ModelHolder mainModels; // 根节点收到的模型
     private static ModelHolder[] innerModels; // 第二层节点收到的模型
     //网络带宽
@@ -117,6 +117,12 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                 
                 long newSessionID = Network.getAggregateNode((int) currentNode.getID()).getSessionID()+1;
                 Network.getAggregateNode((int) currentNode.getID()).setSessionID(newSessionID);
+                
+                if (CommonState.getTime() > 0 && newSessionID % 2 == 1) {
+                    EDSimulator.add(0, new ControlEvent(EDSimulator.controls[0], 
+                            EDSimulator.ctrlSchedules[0], 0), null, -1, 0);
+                }
+                
                 
                 Model m = models.getModel(models.size() - 1);
                 ModelHolder mh = new BoundedModelHolder(1);

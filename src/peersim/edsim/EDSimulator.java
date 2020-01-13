@@ -149,10 +149,10 @@ private static long endtime;
 private static long logtime;
 
 /** holds the modifiers of this simulation */
-private static Control[] controls=null;
+public static Control[] controls=null;
 
 /** Holds the control schedulers of this simulation */
-private static Scheduler[] ctrlSchedules = null;
+public static Scheduler[] ctrlSchedules = null;
 
 /** Ordered list of events (heap) */
 private static PriorityQ heap = null;
@@ -206,7 +206,9 @@ private static void scheduleControls()
 		throw new IllegalArgumentException(
 		"Too many control objects");
 	for (int i=0; i < controls.length; i++) {
-		new ControlEvent(controls[i], ctrlSchedules[i], i);
+//		new ControlEvent(controls[i], ctrlSchedules[i], i);
+	    EDSimulator.add(0, new ControlEvent(EDSimulator.controls[0], 
+                EDSimulator.ctrlSchedules[0], 0), null, -1, 0);
 	}
 }
 
@@ -225,7 +227,7 @@ private static void scheduleControls()
  * @param event 
  *   The control event
  */
-static void addControlEvent(long time, int order, ControlEvent event)
+public static void addControlEvent(long time, int order, ControlEvent event)
 {
 // we don't check whether time is negative or in the past: we trust
 // the caller, which must be from this package

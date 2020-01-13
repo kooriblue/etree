@@ -95,6 +95,7 @@ public static final String PAR_REDIRECT = "simulation.stdout";
 private static int simID = UNKNOWN;
 
 private static Vector<Double> losses = new Vector<Double>();
+private static Vector<Long> realTimes = new Vector<Long>();
 
 //========================== methods ===================================
 //======================================================================
@@ -116,7 +117,8 @@ public static int getSimID() {
 	return simID;
 }
 
-public static void addLoss(double loss) {
+public static void addLoss(Long time, double loss) {
+    realTimes.add(time);
     losses.add(loss);
 }
 
@@ -239,7 +241,7 @@ public static void exportExcel() {
     for (int i = 0; i < losses.size(); i++) {
         HSSFRow row = wbSheet.createRow(i);
         HSSFCell cell1 = row.createCell(0);
-        cell1.setCellValue(Integer.toString(i+1));
+        cell1.setCellValue(realTimes.get(i));
         HSSFCell cell2 = row.createCell(1);
         cell2.setCellValue(losses.get(i));
     }

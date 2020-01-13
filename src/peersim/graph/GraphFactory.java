@@ -29,6 +29,8 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import protocol.ETreeLearningProtocol;
+import utils.GraphClustering;
+import utils.TopoUtil;
 
 /**
 * Contains static methods for wiring certain kinds of graphs. The general
@@ -147,51 +149,29 @@ public static Graph wireTree( Graph g, int k, Random r ) {
 //    if (j >= n) {
 //        return g;
 //    }
-//    
-//    // Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½
-//    for(int i = 1; i < k; i++) {
-//        if (j >= n) {
-//            break;
-//        }
-//        for (int l = 0; l < k; l++) {
-//            if (j < n) {
-//                int root = indexes[i];
-//                int ID = j + r.nextInt(n - j);
-//                tmp = indexes[j];
-//                indexes[j] = indexes[ID];
-//                indexes[ID] = tmp;
-//                g.setEdge(root, indexes[j]);
-//                j++;
-//            } else {
-//                break;
-//            }
-//        }
-//    }
-//    
-//    ETreeLearningProtocol.setRoot(rootID);
-//    ETreeLearningProtocol.setInner(nodeIDs);
     
-    int ind = 0;
+    TopoUtil.getGraph(100, "D:/koori/JavaDevelopment/etree/data/data100.in");
+    ArrayList<ArrayList<Integer>> clusters = TopoUtil.getClustering();
+    
     int numOfAggregateNodes = 0;
     // ·Ö×é
-    for (int i = 0; i < k; i++) {
+    for (int i = 0; i < clusters.size(); i++) {
         AggregateNode node = new AggregateNode("");
         node.setIndex(numOfAggregateNodes);
-        node.setIDinNetwork(i*k);
+        node.setIDinNetwork(clusters.get(i).get(0));
         numOfAggregateNodes++;
         Network.addAggregateNode(node);
-        int len = n / k;
-        for (int j = 0; j < len; j++) {
-            g.setEdge(node.getIndex(), indexes[ind], 0);
-            Network.get(indexes[ind]).setParentID(node.getIndex());
-            ind++;
+        for (int j = 0; j < clusters.get(i).size(); j++) {
+            int ID = clusters.get(i).get(j);
+            g.setEdge(node.getIndex(), ID, 0);
+            Network.get(ID).setParentID(node.getIndex());
         }
     }
     
     // ÉèÖÃ¸ù½Úµã
     AggregateNode node = new AggregateNode("");
     node.setIndex(numOfAggregateNodes);
-    node.setIDinNetwork(0);
+    node.setIDinNetwork(clusters.get(0).get(0));
     Network.addAggregateNode(node);
     for (int i = 0; i < k; i++) {
         g.setEdge(numOfAggregateNodes, i, 1);

@@ -81,7 +81,7 @@ public class PredictionObserver extends GraphObserver{
 		    }
 		}
 		lossArr.add(sumloss/count);
-		Simulator.addLoss(sumloss/count);
+		Simulator.addLoss(CommonState.getTime(), sumloss/count);
 //		if(index>21*4*47)
 //			System.out.println(getClass().getCanonicalName() + " - "+lossArr.toString() + "\n");
 			
@@ -92,7 +92,6 @@ public class PredictionObserver extends GraphObserver{
 		//每一轮变化后重置带宽
 		BasicLearningProtocol ab = (BasicLearningProtocol)((Node) g.getNode(0)).getProtocol(pid);
 		ab.resetBandwidth();
-
 			
 		return false;
 	}

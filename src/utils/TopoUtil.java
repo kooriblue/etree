@@ -7,6 +7,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class TopoUtil {
+    
+    private static int[][] g;
 
     /**
      * Requires numpy and cyaron,
@@ -22,7 +24,7 @@ public class TopoUtil {
         String exe = "python";
 
         // It must be the absolute path where the python script in.
-        String command = "/Users/huangjiaming/Documents/developer/etree/data/gen.py";
+        String command = "D:/koori/JavaDevelopment/etree/data/gen.py";
 
         String[] cmd = new String[] {exe, command, String.valueOf(n),
                 String.valueOf(delayMean), String.valueOf(delayVar)};
@@ -50,12 +52,12 @@ public class TopoUtil {
      * @param filePath The path of graph data file
      * @return Adjacency matrix
      */
-    public static int[][] getGraph(int n, String filePath) {
-        int[][] res = new int[n][n];
+    public static void getGraph(int n, String filePath) {
+        g = new int[n][n];
 
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                res[i][j] = i == j ? 0 : 0x7fffffff;
+                g[i][j] = i == j ? 0 : 0x7fffffff;
 
         try {
             FileReader fr = new FileReader(filePath);
@@ -66,8 +68,8 @@ public class TopoUtil {
                 String[] temp = str.split(" ");
                 int from = Integer.parseInt(temp[0])-1;
                 int to = Integer.parseInt(temp[1])-1;
-                res[from][to] = Integer.parseInt(temp[2]);
-                res[to][from] = Integer.parseInt(temp[2]);
+                g[from][to] = Integer.parseInt(temp[2]);
+                g[to][from] = Integer.parseInt(temp[2]);
             }
             bf.close();
             fr.close();
@@ -75,13 +77,11 @@ public class TopoUtil {
             e.printStackTrace();
         }
 
-         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++)
-                System.out.printf("%15d", res[i][j]);
-            System.out.println();
-         }
-
-        return res;
+//         for (int i = 0; i < n; i++) {
+//            for (int j = 0; j < n; j++)
+//                System.out.printf("%15d", g[i][j]);
+//            System.out.println();
+//         }
     }
 
     /**
@@ -95,7 +95,7 @@ public class TopoUtil {
      * @param end message to
      * @return the minimum delay
      */
-    public static int getMinDelay(int[][] graph, int start, int end) {
+    public static int getMinDelay(int start, int end) {
         class Edge implements Comparable<Edge>{
             int to , cost;
             Edge(int to_,int cost_){
@@ -108,7 +108,7 @@ public class TopoUtil {
             }
         }
 
-        int n = graph.length;
+        int n = g.length;
         boolean[] vis = new boolean[n];
         int[] dis = new int[n];
 
@@ -126,8 +126,8 @@ public class TopoUtil {
             vis[u] = true;
 
             for (int to = 0; to < n; to++) {
-                if (u != to && graph[u][to] != 0x7fffffff) {
-                    int delay = graph[u][to];
+                if (u != to && g[u][to] != 0x7fffffff) {
+                    int delay = g[u][to];
 
                     if (!vis[to] && dis[to] > dis[u] + delay) {
                         dis[to] = dis[u]+delay;
@@ -139,23 +139,28 @@ public class TopoUtil {
         return dis[end];
     }
 
-
-    public static void main(String[] args) {
-        int n = 5;
-        generatedGraph(n, 2, 3);
-
-        int[][] g = getGraph(n, "/Users/huangjiaming/Documents/developer/etree/data/data.in");
-
-        System.out.println("minDelay: from 0 -> 3: " + getMinDelay(g, 0, 3));
-
-        System.out.println("result of GraphClustering: ");
+    public static ArrayList<ArrayList<Integer>> getClustering() {
         GraphClustering pG = new GraphClustering(g);
-        ArrayList<ArrayList<Integer>> result = pG.getGraphPartitionResult(3);
-        for (ArrayList<Integer> tmp : result) {
-            for (Integer i : tmp) {
-                System.out.print(i + " ");
-            }
-            System.out.println();
-        }
+        ArrayList<ArrayList<Integer>> result = pG.getGraphPartitionResult(33);
+        return result;
     }
+
+//    public static void main(String[] args) {
+//        int n = 5;
+////        generatedGraph(n, 2, 3);
+//
+//        getGraph(100, "D:/koori/JavaDevelopment/etree/data/data100.in");
+//
+//        System.out.println("minDelay: from 0 -> 3: " + getMinDelay(0, 3));
+//
+//        System.out.println("result of GraphClustering: ");
+//        GraphClustering pG = new GraphClustering(g);
+//        ArrayList<ArrayList<Integer>> result = pG.getGraphPartitionResult(33);
+//        for (ArrayList<Integer> tmp : result) {
+//            for (Integer i : tmp) {
+//                System.out.print(i + " ");
+//            }
+//            System.out.println();
+//        }
+//    }
 }

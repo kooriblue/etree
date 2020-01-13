@@ -23,7 +23,7 @@ import java.util.Vector;
 import peersim.config.*;
 import peersim.core.*;
 import peersim.edsim.*;
-import utils.Delay;
+import utils.TopoUtil;
 
 
 /**
@@ -135,7 +135,8 @@ public void send(Node src, Node dest, Object msg, int pid)
 	// avoid calling nextLong if possible
 //	long delay = (range==1?min:min + CommonState.r.nextLong(range));
 //    long delay = delays.get(src.getRouterID()).get(dest.getRouterID()).longValue();
-    long delay = Delay.getDelay(src.getIDinNetwork(), dest.getIDinNetwork());
+    long delay = TopoUtil.getMinDelay((int)src.getIDinNetwork(),
+                                        (int)dest.getIDinNetwork());
 	EDSimulator.add(delay, msg, dest, pid);
 }
 
