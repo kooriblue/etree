@@ -118,7 +118,8 @@ public class ETreeLearningProtocol extends AbstractProtocol{
                 long newSessionID = Network.getAggregateNode((int) currentNode.getID()).getSessionID()+1;
                 Network.getAggregateNode((int) currentNode.getID()).setSessionID(newSessionID);
                 
-                if (CommonState.getTime() > 0 && newSessionID % 2 == 1) {
+//                if (CommonState.getTime() > 0 && newSessionID % 2 == 0) {
+                if (CommonState.getTime() > 0) {
                     EDSimulator.add(0, new ControlEvent(EDSimulator.controls[0], 
                             EDSimulator.ctrlSchedules[0], 0), null, -1, 0);
                 }
@@ -264,13 +265,19 @@ public class ETreeLearningProtocol extends AbstractProtocol{
             // 第二层节点收到叶节点的模型
             else {
                 int numOfChildren = ((Linkable)currentNode.getProtocol(2)).degree();
-                if (mainModels.size() >= (int)(numOfChildren*aggregatePercent)) {
-                    EDSimulator.add(0, new OnlineSessionMessage(0), Network.getAggregateNode((int) currentNode.getID()), currentProtocolID, 0);
-                } else {
-                    if (message.getSessionID() == Network.getAggregateNode((int) currentNode.getID()).getSessionID()) {
-                        Model model = message.getModel(i);
-                        ((ETreeLearningProtocol)Network.getAggregateNode((int) currentNode.getID()).getProtocol(1)).addMainModel(model);
+                if (numOfChildren > 1) {
+                    if (mainModels.size() >= (int)(numOfChildren*aggregatePercent)) {
+                        EDSimulator.add(0, new OnlineSessionMessage(0), Network.getAggregateNode((int) currentNode.getID()), currentProtocolID, 0);
+                    } else {
+                        if (message.getSessionID() == Network.getAggregateNode((int) currentNode.getID()).getSessionID()) {
+                            Model model = message.getModel(i);
+                            ((ETreeLearningProtocol)Network.getAggregateNode((int) currentNode.getID()).getProtocol(1)).addMainModel(model);
+                        }
                     }
+                } else {
+                    Model model = message.getModel(i);
+                    ((ETreeLearningProtocol)Network.getAggregateNode((int) currentNode.getID()).getProtocol(1)).addMainModel(model);
+                    EDSimulator.add(0, new OnlineSessionMessage(0), Network.getAggregateNode((int) currentNode.getID()), currentProtocolID, 0);
                 }
             }
         }

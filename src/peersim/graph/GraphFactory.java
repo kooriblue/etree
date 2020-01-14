@@ -103,8 +103,8 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     final int n = g.size();
     if( n < 2 ) return g;
     
-    int[] indexes = new int[n];
-    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
+//    int[] indexes = new int[n];
+//    for(int i=0; i<indexes.length; ++i) indexes[i]=i;
     
 //    // 选择根节点
 //    int ind = 0;
@@ -150,15 +150,28 @@ public static Graph wireTree( Graph g, int k, Random r ) {
 //        return g;
 //    }
     
-    TopoUtil.getGraph(100, "D:/koori/JavaDevelopment/etree/data/data100.in");
-    ArrayList<ArrayList<Integer>> clusters = TopoUtil.getClustering();
+    TopoUtil.getGraph(1000, "D:/koori/JavaDevelopment/etree/data/data1000.in");
+    TopoUtil.generateMinDelayMatrix();
+    ArrayList<Integer> indexes = new ArrayList<Integer>();
+    for (int i = 0; i < n; i++) {
+        indexes.add(i);
+    }
+    ArrayList<ArrayList<Integer>> clusters = TopoUtil.getGraphPartitionResult(indexes, 10);
     
     int numOfAggregateNodes = 0;
+    ArrayList<Integer> inners = new ArrayList<Integer>();
     // 分组
     for (int i = 0; i < clusters.size(); i++) {
         AggregateNode node = new AggregateNode("");
         node.setIndex(numOfAggregateNodes);
-        node.setIDinNetwork(clusters.get(i).get(0));
+        if (clusters.get(i).size() > 1) {
+            inners.add(TopoUtil.findParameterServerId(clusters.get(i), 1.0f));
+            node.setIDinNetwork(TopoUtil.findParameterServerId(clusters.get(i), 1.0f));
+        } else {
+            inners.add(clusters.get(i).get(0));
+            node.setIDinNetwork(clusters.get(i).get(0));
+        }
+        
         numOfAggregateNodes++;
         Network.addAggregateNode(node);
         for (int j = 0; j < clusters.get(i).size(); j++) {
@@ -171,7 +184,7 @@ public static Graph wireTree( Graph g, int k, Random r ) {
     // 设置根节点
     AggregateNode node = new AggregateNode("");
     node.setIndex(numOfAggregateNodes);
-    node.setIDinNetwork(clusters.get(0).get(0));
+    node.setIDinNetwork(TopoUtil.findParameterServerId(inners, 1.0f));
     Network.addAggregateNode(node);
     for (int i = 0; i < k; i++) {
         g.setEdge(numOfAggregateNodes, i, 1);

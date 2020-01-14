@@ -14,6 +14,7 @@ import database.DatabaseReader;
 import peersim.Simulator;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Network;
 import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
@@ -81,6 +82,20 @@ public class PredictionObserver extends GraphObserver{
 		    }
 		}
 		lossArr.add(sumloss/count);
+//		double sumloss = 0.0;
+//		Protocol protocol = ((Node) Network.getAggregateNode((int) ETreeLearningProtocol.getRoot())).getProtocol(pid);
+//		if (protocol instanceof BasicLearningProtocol) {
+//		    int numOfHolders = ((BasicLearningProtocol)protocol).size();
+//            for (int holderIndex = 0; holderIndex < numOfHolders; holderIndex++){
+//                ModelHolder modelHolder = ((BasicLearningProtocol)protocol).getModelHolder(holderIndex);
+//                for(int j=0;j<modelHolder.size();j++) {
+//                    LogisticRegression m = (LogisticRegression)modelHolder.getModel(j);
+//                    double loss = m.ZeroOneErrorCompute(test.getInstances(),test.getLabels());
+//                    sumloss += loss;
+//                    count ++;
+//                }
+//            }
+//		}
 		Simulator.addLoss(CommonState.getTime(), sumloss/count);
 //		if(index>21*4*47)
 //			System.out.println(getClass().getCanonicalName() + " - "+lossArr.toString() + "\n");
